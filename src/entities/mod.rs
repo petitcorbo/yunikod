@@ -17,10 +17,12 @@ pub enum Direction {
 pub struct Inventory(Vec<ItemKind>);
 
 impl Inventory {
+    /// Create new empty inventory
     pub fn new() -> Self {
         Inventory(Vec::new())
     }
     
+    /// add an item to the inventory
     pub fn add(&mut self, item: ItemKind) {
         self.0.push(item);
     }
@@ -49,7 +51,7 @@ pub enum EntityKind {
     Bullet(Bullet),
 }
 
-impl<'a> EntityKind {
+impl EntityKind {
     pub fn on_tick(&mut self) {
         match self {
             EntityKind::Player(e) => e.on_tick(),
@@ -77,6 +79,13 @@ impl<'a> EntityKind {
             EntityKind::Bullet(e) => e.looking(),
         }
     }
+
+    pub fn is_dead(&self) -> bool {
+        match self {
+            EntityKind::Player(e) => e.is_dead(),
+            EntityKind::Bullet(e) => e.is_dead(),
+        }
+    }
 }
 
 pub trait Entity<'a> {
@@ -85,6 +94,9 @@ pub trait Entity<'a> {
     fn shape(&self) -> Span<'a>;
     fn draw<'b>(&'a self, ctx: &mut Context<'b>);
     fn on_tick(&mut self);
+    fn is_dead(&self) -> bool;
+    fn hurt(&mut self, amount: u8);
+    fn heal(&mut self, amount: u8);
     fn looking(&mut self) -> Direction;
     fn looking_at(&mut self) -> (f64, f64, Direction) {
         match self.looking() {

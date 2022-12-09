@@ -8,6 +8,7 @@ pub struct Bullet {
     x: f64,
     y: f64,
     looking: Direction,
+    life: u8,
 }
 
 impl<'a> Bullet {
@@ -15,7 +16,8 @@ impl<'a> Bullet {
         Bullet {
             x,
             y,
-            looking: direction
+            looking: direction,
+            life: 20,
         }
     }
 }
@@ -36,6 +38,13 @@ impl<'a> Entity<'a> for Bullet {
             Direction::Left => self.x -= 1.0,
             Direction::Right => self.x += 1.0,
         }
+        if !self.is_dead() {
+            self.life -= 1;
+        }
+    }
+
+    fn is_dead(&self) -> bool {
+        self.life == 0
     }
 
     fn looking(&mut self) -> Direction {
@@ -49,4 +58,7 @@ impl<'a> Entity<'a> for Bullet {
     fn y(&self) -> f64 {
         self.y
     }
+
+    fn heal(&mut self, _amount: u8) {}
+    fn hurt(&mut self, _amount: u8) {}
 }

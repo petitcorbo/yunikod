@@ -22,24 +22,22 @@ const TITLE: &str = "Game";
 
 pub struct Game {
     should_quit: bool,
-    paused: bool,
     player: Player,
     entities: Vec<EntityKind>
 }
 
 impl<'a> Game {
     pub fn new() -> Self {
-        let mut player = Player::new(20.0, 20.0);
-        player.inventory().add(ItemKind::Gun(Gun));
+        let mut player = Player::new(75.0, 25.0);
+        player.pick_up(ItemKind::Gun(Gun));
         Game {
             should_quit: false,
-            paused: false,
             player,
             entities: Vec::new(),
         }
     }
 
-    pub fn on_key(&'a mut self, c: char) {
+    pub fn on_key(&mut self, c: char) {
         match c {
             ' ' => {
                 if let Some(entity) = self.player.on_space() {
@@ -51,10 +49,17 @@ impl<'a> Game {
         }
     }
 
+    pub fn on_escape(&mut self) {
+        self.should_quit = true;
+    }
+
     pub fn on_tick(&mut self) {
+        self.player.on_tick();
+
         for entity in &mut self.entities {
-            entity.on_tick()
+            entity.on_tick();
         }
+        self.entities.retain(|e| !e.is_dead());
     }
 }
 
@@ -74,6 +79,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char(c) => game.on_key(c),
+                    KeyCode::Esc => game.on_escape(),
                     KeyCode::Up => game.player.on_up(),
                     KeyCode::Down => game.player.on_down(),
                     KeyCode::Left => game.player.on_left(),

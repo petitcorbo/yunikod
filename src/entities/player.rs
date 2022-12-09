@@ -2,10 +2,7 @@ use tui::{
     style::{Color, Style},
     text::Span, widgets::canvas::Context,
 };
-use crate::{
-    entities::{Direction, Entity, EntityKind},
-    items::{ItemKind, gun}
-};
+use crate::{entities::{Direction, Entity, EntityKind}, items::ItemKind};
 
 use super::Inventory;
 
@@ -15,7 +12,9 @@ pub struct Player {
     looking: Direction,
     style: Style,
     inventory: Inventory,
-    using: usize
+    using: usize,
+    life: u8,
+    max_life: u8,
 }
 
 impl<'a> Player {
@@ -26,7 +25,9 @@ impl<'a> Player {
             looking: Direction::Up,
             style: Style::default().fg(Color::Cyan),
             inventory: Inventory::new(),
-            using: 0
+            using: 0,
+            life: 50,
+            max_life: 50
         }
     }
 
@@ -62,6 +63,10 @@ impl<'a> Player {
             None
         }
     }
+
+    pub fn pick_up(&mut self, item: ItemKind) {
+        self.inventory.add(item);
+    }
 }
 
 impl<'a> Entity<'a> for Player {
@@ -87,6 +92,10 @@ impl<'a> Entity<'a> for Player {
         Span::styled(sprite, self.style)
     }
 
+    fn is_dead(&self) -> bool {
+        self.life == 0
+    }
+
     fn looking_at(&mut self) -> (f64, f64, Direction) {
         match self.looking {
             Direction::Up => (self.x, self.y + 1.0, Direction::Up),
@@ -102,5 +111,16 @@ impl<'a> Entity<'a> for Player {
 
     fn on_tick(&mut self) {
         ()
+    }
+
+    fn heal(&mut self, amount: u8) {
+        self.life += amount;
+        if self.life > self.max_life {
+            self.life = self.max_life;
+        }
+    }
+
+    fn hurt(&mut self, amount: u8) {
+        self.life -= amount;
     }
 }
