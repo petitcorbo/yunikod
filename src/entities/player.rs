@@ -1,6 +1,7 @@
 use tui::{    
     style::{Color, Style},
-    text::{Span, Spans}, widgets::canvas::Context,
+    text::Span,
+    widgets::canvas::Context,
 };
 use crate::{entities::{Direction, EntityKind}, items::ItemKind};
 
@@ -27,8 +28,8 @@ impl<'a> Player {
             style: Style::default().fg(Color::Cyan),
             inventory: Inventory::new(),
             using: 0,
-            life: 50,
-            max_life: 50,
+            life: 100,
+            max_life: 100,
             immunity: 0,
         }
     }
@@ -135,19 +136,7 @@ impl<'a> Player {
         }
     }
 
-    pub fn health_bar(&self) -> Spans<'a> {
-        let mut bar = "█".repeat((self.life/4) as usize);
-        bar.push(match self.life%4 {
-            1 => '▎',
-            2 => '▌',
-            3 => '▊',
-            _ => '█',
-        });
-        bar.push_str(" ".repeat((self.max_life - self.life) as usize).as_str());
-        Spans::from(vec![
-            Span::raw("["),
-            Span::styled(bar, Style::default().fg(Color::Red)),
-            Span::raw("]"),
-        ])
+    pub fn life_ratio(&self) -> f64 {
+        (self.life as f64) / (self.max_life as f64)
     }
 }

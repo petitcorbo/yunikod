@@ -4,10 +4,10 @@ use crossterm::event::{
 use tui::{
     backend::Backend,
     Terminal,
-    widgets::{Block, Borders, Paragraph, canvas::Canvas},
+    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge},
     layout::{Layout, Constraint},
     symbols,
-    Frame,
+    Frame, style::{Style, Color},
 };
 use std::{
     io,
@@ -16,7 +16,7 @@ use std::{
 use crate::{entities::{
     EntityKind,
     player::Player, Direction
-}, items::{gun::Gun, ItemKind}};
+}, items::{flamethrower::FlameThrower, ItemKind}};
 
 const TITLE: &str = "Game";
 
@@ -29,7 +29,7 @@ pub struct Game {
 impl<'a> Game {
     pub fn new() -> Self {
         let mut player = Player::new(75.0, 25.0);
-        player.pick_up(ItemKind::Gun(Gun));
+        player.pick_up(ItemKind::FT(FlameThrower));
         Game {
             should_quit: false,
             player,
@@ -55,11 +55,18 @@ impl<'a> Game {
 
     pub fn on_tick(&mut self) {
         self.player.on_tick();
+        let mut fire_generated = Vec::new();
 
         for entity in &mut self.entities {
+            if let EntityKind::Fire(fire) = entity {
+                fire_generated.extend(fire.spread());
+            }
             entity.on_tick();
         }
         self.entities.retain(|e| !e.is_dead());
+        for fire in fire_generated {
+            self.entities.push(fire);
+        }
     }
 }
 
@@ -107,13 +114,20 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
         .split(frame.size());
 
     let hchunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(2)])
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .direction(tui::layout::Direction::Horizontal)
         .split(vchunks[0]);
 
     // controls information \\
-    let paragraph = Paragraph::new(game.player.health_bar())
+    let paragraph = Paragraph::new("")
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks[0]);
+
+    let lifebar = Gauge::default()
+        .block(Block::default().title("[Life]").borders(Borders::ALL))
+        .gauge_style(Style::default().fg(Color::Red))
+        .ratio(game.player.life_ratio());
+    frame.render_widget(lifebar, hchunks[1]);
 
     // canvas \\
     let player = &game.player;
