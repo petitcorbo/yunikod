@@ -14,8 +14,8 @@ use std::{
     time::{Duration, Instant}
 };
 use crate::{entities::{
-    Entity, EntityKind,
-    player::Player
+    EntityKind,
+    player::Player, Direction
 }, items::{gun::Gun, ItemKind}};
 
 const TITLE: &str = "Game";
@@ -80,10 +80,10 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
                 match key.code {
                     KeyCode::Char(c) => game.on_key(c),
                     KeyCode::Esc => game.on_escape(),
-                    KeyCode::Up => game.player.on_up(),
-                    KeyCode::Down => game.player.on_down(),
-                    KeyCode::Left => game.player.on_left(),
-                    KeyCode::Right => game.player.on_right(),
+                    KeyCode::Up => game.player.go(Direction::Up, &game.entities),
+                    KeyCode::Down => game.player.go(Direction::Down, &game.entities),
+                    KeyCode::Left => game.player.go(Direction::Left, &game.entities),
+                    KeyCode::Right => game.player.go(Direction::Right, &game.entities),
                     _ => {}
                 }
             }
@@ -111,7 +111,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
         .split(vchunks[0]);
 
     // controls information \\
-    let paragraph = Paragraph::new("ok")
+    let paragraph = Paragraph::new(game.player.health_bar())
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks[0]);
 

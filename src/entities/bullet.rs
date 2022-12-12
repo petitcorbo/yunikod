@@ -9,6 +9,7 @@ pub struct Bullet {
     y: f64,
     looking: Direction,
     life: u8,
+    damage: u8,
 }
 
 impl<'a> Bullet {
@@ -18,6 +19,7 @@ impl<'a> Bullet {
             y,
             looking: direction,
             life: 20,
+            damage: 10,
         }
     }
 }
@@ -61,4 +63,12 @@ impl<'a> Entity<'a> for Bullet {
 
     fn heal(&mut self, _amount: u8) {}
     fn hurt(&mut self, _amount: u8) {}
+
+    fn is_harmful(&self) -> bool {
+        true
+    }
+    
+    fn damage(&self) -> u8 {
+        self.damage
+    }
 }

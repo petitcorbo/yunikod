@@ -1,8 +1,8 @@
 use tui::{    
     style::{Color, Style},
-    text::Span, widgets::canvas::Context,
+    text::{Span, Spans}, widgets::canvas::Context,
 };
-use crate::{entities::{Direction, Entity, EntityKind}, items::ItemKind};
+use crate::{entities::{Direction, EntityKind}, items::ItemKind};
 
 use super::Inventory;
 
@@ -15,6 +15,7 @@ pub struct Player {
     using: usize,
     life: u8,
     max_life: u8,
+    immunity: u8,
 }
 
 impl<'a> Player {
@@ -27,7 +28,8 @@ impl<'a> Player {
             inventory: Inventory::new(),
             using: 0,
             life: 50,
-            max_life: 50
+            max_life: 50,
+            immunity: 0,
         }
     }
 
@@ -35,24 +37,30 @@ impl<'a> Player {
         &mut self.inventory
     }
 
-    pub fn on_up(&mut self) {
-        self.y += 1.0;
-        self.looking = Direction::Up;
-    }
-
-    pub fn on_down(&mut self) {
-        self.y -= 1.0;
-        self.looking = Direction::Down;
-    }
-
-    pub fn on_left(&mut self) {
-        self.x -= 1.0;
-        self.looking = Direction::Left;
-    }
-
-    pub fn on_right(&mut self) {
-        self.x += 1.0;
-        self.looking = Direction::Right;
+    pub fn go(&mut self, direction: Direction, entities: &Vec<EntityKind>) {
+        let mut x = self.x;
+        let mut y = self.y;
+        match direction {
+            Direction::Up => y += 1.0,
+            Direction::Down => y -= 1.0,
+            Direction::Left => x -= 1.0,
+            Direction::Right => x += 1.0,
+        }
+        let mut can_move = true;
+        for entity in entities {
+            if entity.collide(x, y) {
+                can_move = false;
+                if entity.is_harmful() {
+                    self.hurt(entity.damage());
+                }
+                break;
+            }
+        }
+        if can_move {
+            self.x = x;
+            self.y = y;
+        }
+        self.looking = direction;
     }
 
     pub fn on_space(&mut self) -> Option<EntityKind> {
@@ -64,25 +72,32 @@ impl<'a> Player {
         }
     }
 
+    fn looking_at(&mut self) -> (f64, f64, Direction) {
+        match self.looking() {
+            Direction::Up => (self.x(), self.y() + 1.0, Direction::Up),
+            Direction::Down => (self.x(), self.y() - 1.0, Direction::Down),
+            Direction::Left => (self.x() - 1.0, self.y(), Direction::Left),
+            Direction::Right => (self.x() + 1.0, self.y(), Direction::Right),
+        }
+    }
+
     pub fn pick_up(&mut self, item: ItemKind) {
         self.inventory.add(item);
     }
-}
 
-impl<'a> Entity<'a> for Player {
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
+    pub fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn x(&self) -> f64 {
-        self.x
+    pub fn x(&self) -> f64 {
+        self.x.floor()
     }
 
-    fn y(&self) -> f64 {
-        self.y
+    pub fn y(&self) -> f64 {
+        self.y.floor()
     }
 
-    fn shape(&self) -> Span<'a> {
+    pub fn shape(&self) -> Span<'a> {
         let sprite = match self.looking {
             Direction::Up => "◓",
             Direction::Down => "◒",
@@ -92,35 +107,47 @@ impl<'a> Entity<'a> for Player {
         Span::styled(sprite, self.style)
     }
 
-    fn is_dead(&self) -> bool {
+    pub fn is_dead(&self) -> bool {
         self.life == 0
     }
 
-    fn looking_at(&mut self) -> (f64, f64, Direction) {
-        match self.looking {
-            Direction::Up => (self.x, self.y + 1.0, Direction::Up),
-            Direction::Down => (self.x, self.y - 1.0, Direction::Down),
-            Direction::Left => (self.x - 1.0, self.y, Direction::Left),
-            Direction::Right => (self.x + 1.0, self.y, Direction::Right),
-        }
-    }
-
-    fn looking(&mut self) -> Direction {
+    pub fn looking(&mut self) -> Direction {
         self.looking.clone()
     }
 
-    fn on_tick(&mut self) {
-        ()
+    pub fn on_tick(&mut self) {
+        if self.immunity > 0 {
+            self.immunity -= 1;
+        }
     }
 
-    fn heal(&mut self, amount: u8) {
+    pub fn heal(&mut self, amount: u8) {
         self.life += amount;
         if self.life > self.max_life {
             self.life = self.max_life;
         }
     }
 
-    fn hurt(&mut self, amount: u8) {
-        self.life -= amount;
+    pub fn hurt(&mut self, amount: u8) {
+        if self.life >= amount && self.immunity == 0 {
+            self.life -= amount;
+            self.immunity = 5;
+        }
+    }
+
+    pub fn health_bar(&self) -> Spans<'a> {
+        let mut bar = "█".repeat((self.life/4) as usize);
+        bar.push(match self.life%4 {
+            1 => '▎',
+            2 => '▌',
+            3 => '▊',
+            _ => '█',
+        });
+        bar.push_str(" ".repeat((self.max_life - self.life) as usize).as_str());
+        Spans::from(vec![
+            Span::raw("["),
+            Span::styled(bar, Style::default().fg(Color::Red)),
+            Span::raw("]"),
+        ])
     }
 }
