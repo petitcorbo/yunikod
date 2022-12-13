@@ -1,24 +1,51 @@
-use crossterm::event::{
-    self, Event, KeyCode
-};
+use crossterm::event::{self, Event, KeyCode};
 use tui::{
-    backend::Backend,
-    Terminal,
-    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge},
-    layout::{Layout, Constraint},
+    Frame,
     symbols,
-    Frame, style::{Style, Color},
+    Terminal,
+    backend::Backend,
+    style::{Style, Color},
+    layout::{Layout, Constraint},
+    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge},
 };
 use std::{
     io,
-    time::{Duration, Instant}
+    time::{Duration, Instant}, ops::{Index, IndexMut}
 };
 use crate::{entities::{
     EntityKind,
     player::Player, Direction
-}, items::{flamethrower::FlameThrower, ItemKind}};
+}, items::{flamethrower::FlameThrower, ItemKind}, blocks::BlockKind};
 
 const TITLE: &str = "Game";
+
+struct Chunck {
+    size: u8,
+    blocks: Vec<Option<BlockKind>>
+}
+
+impl Chunck {
+    pub fn new(init: bool) -> Self {
+        Self {
+            size: 16,
+            blocks: vec![None; 256]
+        }
+    }
+}
+
+impl Index<(usize, usize)> for Chunck {
+    type Output = Option<BlockKind>;
+
+    fn index(&self, (i, j): (usize, usize)) -> &Self::Output {
+        &self.blocks[i * 16 + j]
+    }
+}
+
+impl IndexMut<(usize, usize)> for Chunck {
+    fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut Self::Output {
+        &mut self.blocks[i * 16 + j]
+    }
+}
 
 pub struct Game {
     should_quit: bool,
@@ -138,6 +165,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
         .y_bounds(y_bounds)
         .block(Block::default().title(TITLE).borders(Borders::ALL))
         .marker(symbols::Marker::Block)
+        .background_color(Color::Green)
         .paint(|ctx| {
             player.draw(ctx);
             for entity in &game.entities {

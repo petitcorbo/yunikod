@@ -42,8 +42,8 @@ impl<'a> Fire {
     pub fn spread(&self) -> Vec<EntityKind> {
         let mut fire = Vec::new();
         let mut rng = rand::thread_rng();
-        let side_rng = if self.life >= 5 {
-            (self.life - 5) as u32
+        let side_rng = if self.life >= 6 {
+            (self.life - 6) as u32
         } else { 0 };
         match self.looking {
             Direction::Up => {
@@ -51,10 +51,10 @@ impl<'a> Fire {
                     fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-1)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5)));
                 }
             },
             Direction::Down => {
@@ -62,10 +62,10 @@ impl<'a> Fire {
                     fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-1)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5)));
                 }
             },
             Direction::Left => {
@@ -73,10 +73,10 @@ impl<'a> Fire {
                     fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-1)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5)));
                 }
             },
             Direction::Right => {
@@ -84,10 +84,10 @@ impl<'a> Fire {
                     fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-1)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5)));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-2)));
+                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5)));
                 }
             },
         };
