@@ -1,4 +1,4 @@
-use tui::{    
+use tui::{ 
     style::{Color, Style},
     text::Span,
     widgets::canvas::Context,
@@ -25,7 +25,7 @@ impl<'a> Player {
             x,
             y,
             looking: Direction::Up,
-            style: Style::default().fg(Color::Cyan),
+            style: Style::default().fg(Color::Blue),
             inventory: Inventory::new(),
             using: 0,
             life: 100,
