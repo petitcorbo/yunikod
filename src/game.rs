@@ -1,6 +1,5 @@
 use crossterm::event::{self, Event, KeyCode};
-use noise::{Perlin, NoiseFn};
-use rand::random;
+use perlin2d::PerlinNoise2D;
 use tui::{
     Frame,
     symbols,
@@ -20,7 +19,7 @@ use crate::{entities::{
 }, items::{flamethrower::FlameThrower, ItemKind}, blocks::BlockKind};
 
 const TITLE: &str = "Game";
-const CHUNCK_SIZE: i32 = 16;
+const CHUNK_SIZE: i32 = 16;
 
 enum Terrain {
     Water,
@@ -38,19 +37,19 @@ impl Terrain {
     }
 }
 
-struct Chunck(i32, i32, Vec<(Terrain, Option<BlockKind>)>);
+struct Chunk(i32, i32, Vec<(Terrain, Option<BlockKind>)>);
 
-impl Chunck {
-    fn new(col: i32, row: i32, perlin: Perlin) -> Self {
+impl Chunk {
+    fn new(col: i32, row: i32, perlin: &PerlinNoise2D) -> Self {
         let mut terrain = Vec::new();
-        for i in 0..CHUNCK_SIZE {
-            for j in 0..CHUNCK_SIZE {
-                let x = (col*CHUNCK_SIZE + i) as f64;
-                let y = (row*CHUNCK_SIZE + j) as f64;
-                let value = perlin.get([x, y]);
-                if value >= 0.15 {
+        for i in 0..CHUNK_SIZE {
+            for j in 0..CHUNK_SIZE {
+                let x = (col*CHUNK_SIZE + i) as f64;
+                let y = (row*CHUNK_SIZE + j) as f64;
+                let value = perlin.get_noise(x, y);
+                if value >= 0.9 {
                     terrain.push((Terrain::Stone, None))
-                } else if value >= 0.0 {
+                } else if value >= -1.0 {
                     terrain.push((Terrain::Grass, None))
                 } else {
                     terrain.push((Terrain::Water, None))
@@ -61,17 +60,18 @@ impl Chunck {
     }
 
     fn draw(&self, ctx: &mut Context) {
-        for i in 0..CHUNCK_SIZE {
-            for j in 0..CHUNCK_SIZE {
-                let x = (self.0*CHUNCK_SIZE + i) as f64;
-                let y = (self.1*CHUNCK_SIZE + j) as f64;
-                ctx.print(x, y, Span::styled(" ", Style::default().bg(self[(i as usize,j as usize)].0.color())))
+        for i in 0..CHUNK_SIZE {
+            for j in 0..CHUNK_SIZE {
+                let x = (self.0*CHUNK_SIZE + i) as f64;
+                let y = (self.1*CHUNK_SIZE + j) as f64;
+                let color = self[(i as usize, j as usize)].0.color();
+                ctx.print(x, y, Span::styled("~", Style::default().bg(color).fg(Color::LightBlue)))
             }
         }
     }
 }
 
-impl Index<(usize, usize)> for Chunck {
+impl Index<(usize, usize)> for Chunk {
     type Output = (Terrain, Option<BlockKind>);
 
     fn index(&self, (i, j): (usize, usize)) -> &Self::Output {
@@ -79,7 +79,7 @@ impl Index<(usize, usize)> for Chunck {
     }
 }
 
-impl IndexMut<(usize, usize)> for Chunck {
+impl IndexMut<(usize, usize)> for Chunk {
     fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut Self::Output {
         &mut self.2[i * 16 + j]
     }
@@ -89,33 +89,37 @@ pub struct Game {
     should_quit: bool,
     player: Player,
     entities: Vec<EntityKind>,
-    loaded_chuncks: Vec<Chunck>,
+    loaded_chunks: Vec<Chunk>,
     offset: (f64, f64),
     x_bounds: f64,
-    y_bounds: f64
+    y_bounds: f64,
+    perlin: PerlinNoise2D
 }
 
 impl<'a> Game {
     pub fn new() -> Self {
-        let mut player = Player::new(75.0, 25.0);
+        let mut player = Player::new(0.0, 0.0);
         player.pick_up(ItemKind::FT(FlameThrower));
 
-        let seed = random();
-        let perlin = Perlin::new(seed);
-        let mut chunks = Vec::new();
-        for i in 0..5 {
-            for j in 0..5 {
-                chunks.push(Chunck::new(i, j, perlin))
-            }
-        }
+        let perlin = PerlinNoise2D::new(
+            6,
+            1.0,
+            0.5,
+            1.0,
+            2.0,
+            (100.0, 100.0),
+            0.5,
+            10
+        );
         Game {
             should_quit: false,
             player,
             entities: Vec::new(),
-            loaded_chuncks: chunks,
+            loaded_chunks: Vec::new(),
             offset: (0.0, 0.0),
             x_bounds: 0.0,
-            y_bounds: 0.0
+            y_bounds: 0.0,
+            perlin
         }
     }
 
@@ -139,18 +143,19 @@ impl<'a> Game {
         self.player.on_tick();
         let x = self.player.x() - self.offset.0;
         let y = self.player.y() - self.offset.1;
-        let w = self.x_bounds;
-        let h = self.y_bounds;
-        if x < -w + 10.0 {
-            self.offset.0 -= 1.0;
-        } else if x > w - 10.0 {
-            self.offset.0 += 1.0;
+        let w = self.x_bounds - 10.0;
+        let h = self.y_bounds - 5.0;
+
+        if x < -w {
+            self.offset.0 += w+x;
+        } else if x > w {
+            self.offset.0 += x-w;
         }
         
-        if y < -h + 5.0 {
-            self.offset.1 -= 1.0;
-        } else if y > h - 5.0 {
-            self.offset.1 += 1.0;
+        if y < -h {
+            self.offset.1 += y+h;
+        } else if y > h {
+            self.offset.1 += y-h;
         }
 
         let mut fire_generated = Vec::new();
@@ -170,13 +175,34 @@ impl<'a> Game {
         self.x_bounds = w;
         self.y_bounds = h;
     }
+
+    fn update_chunks(&mut self) {
+        let n = self.x_bounds as i32 / CHUNK_SIZE + 2;
+        let m = self.y_bounds as i32 / CHUNK_SIZE + 2;
+        let c = self.offset.0 as i32 / CHUNK_SIZE;
+        let r = self.offset.1 as i32 / CHUNK_SIZE;
+
+        for i in -n..=n {
+            for j in -m..=m {
+                let mut found = false;
+                for chunk in &self.loaded_chunks {
+                    if chunk.0 == c+i && chunk.1 == r+j {
+                        found = true;
+                        break
+                    }
+                }
+                if !found {
+                    self.loaded_chunks.push(Chunk::new(c+i, r+j, &self.perlin))
+                }
+            }
+        }
+    }
 }
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result<()> {
-    let tick_rate = Duration::from_millis(100);
+    let tick_rate = Duration::from_millis(50);
     let mut last_tick = Instant::now();
     loop {
-        terminal.draw(|frame| draw(frame, &mut game))?;
 
         // time update \\
         let timeout = tick_rate
@@ -184,7 +210,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
             .unwrap_or_else(|| Duration::from_secs(0));
 
         // input handler \\
-        if crossterm::event::poll(timeout)? {
+        if crossterm::event::poll(tick_rate)? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char(c) => game.on_key(c),
@@ -201,8 +227,10 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
         // game update \\
         if last_tick.elapsed() >= tick_rate {
             game.on_tick();
+            game.update_chunks();
             last_tick = Instant::now();
         }
+        terminal.draw(|frame| draw(frame, &mut game))?;
 
         if game.should_quit {
             return Ok(());
@@ -245,7 +273,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
         .block(Block::default().title(TITLE).borders(Borders::ALL))
         .marker(symbols::Marker::Block)
         .paint(|ctx| {
-            for chunck in &game.loaded_chuncks {
+            for chunck in &game.loaded_chunks {
                 chunck.draw(ctx);
             }
             player.draw(ctx);
