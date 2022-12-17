@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use perlin2d::PerlinNoise2D;
 use tui::{
     Frame,
@@ -18,7 +18,7 @@ use crate::{entities::{
     player::Player, Direction
 }, items::{flamethrower::FlameThrower, ItemKind}, blocks::BlockKind};
 
-const TITLE: &str = "Game";
+const TITLE: &str = "Yuni-Kod";
 const CHUNK_SIZE: i32 = 16;
 
 enum Terrain {
@@ -32,7 +32,19 @@ impl Terrain {
         match self {
             Terrain::Water => Color::Cyan,
             Terrain::Grass => Color::Green,
-            Terrain::Stone => Color::Gray,
+            Terrain::Stone => Color::DarkGray,
+        }
+    }
+
+    pub fn style(&self) -> Style {
+        Style::default().bg(self.color())
+    }
+
+    pub fn span<'a>(&self) -> Span<'a> {
+        match self {
+            Terrain::Water => Span::styled("~", self.style()),
+            Terrain::Grass => Span::styled(" ", self.style()),
+            Terrain::Stone => Span::styled(" ", self.style()),
         }
     }
 }
@@ -64,8 +76,8 @@ impl Chunk {
             for j in 0..CHUNK_SIZE {
                 let x = (self.0*CHUNK_SIZE + i) as f64;
                 let y = (self.1*CHUNK_SIZE + j) as f64;
-                let color = self[(i as usize, j as usize)].0.color();
-                ctx.print(x, y, Span::styled("~", Style::default().bg(color).fg(Color::LightBlue)))
+                let span = self[(i as usize, j as usize)].0.span();
+                ctx.print(x, y, span)
             }
         }
     }
@@ -139,8 +151,18 @@ impl<'a> Game {
         self.should_quit = true;
     }
 
+    pub fn on_arrow(&mut self, key: &KeyEvent, direction: Direction) {
+        self.player.look(direction);
+        if key.modifiers.contains(KeyModifiers::CONTROL) {
+            self.player.moving(false);
+        } else {
+            self.player.moving(true);
+        }
+    }
+
     pub fn on_tick(&mut self) {
-        self.player.on_tick();
+        self.player.on_tick(&self.entities);
+        self.player.moving(false);
         let x = self.player.x() - self.offset.0;
         let y = self.player.y() - self.offset.1;
         let w = self.x_bounds - 10.0;
@@ -169,6 +191,18 @@ impl<'a> Game {
         for fire in fire_generated {
             self.entities.push(fire);
         }
+    }
+
+    pub fn get_block(&self, x: f64, y: f64) -> Option<BlockKind> {
+        let x = x.floor() as i32;
+        let y = y.floor() as i32;
+        let chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
+        for chunk in &self.loaded_chunks {
+            if chunk_idx == (chunk.0, chunk.1) {
+                return chunk[((x%CHUNK_SIZE) as usize, (y%CHUNK_SIZE) as usize)].1;
+            }
+        }
+        None
     }
 
     fn set_bounds(&mut self, w: f64, h: f64) {
@@ -210,15 +244,15 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
             .unwrap_or_else(|| Duration::from_secs(0));
 
         // input handler \\
-        if crossterm::event::poll(tick_rate)? {
+        if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char(c) => game.on_key(c),
                     KeyCode::Esc => game.on_escape(),
-                    KeyCode::Up => game.player.go(Direction::Up, &game.entities),
-                    KeyCode::Down => game.player.go(Direction::Down, &game.entities),
-                    KeyCode::Left => game.player.go(Direction::Left, &game.entities),
-                    KeyCode::Right => game.player.go(Direction::Right, &game.entities),
+                    KeyCode::Up => game.on_arrow(&key, Direction::Up),
+                    KeyCode::Down => game.on_arrow(&key, Direction::Down),
+                    KeyCode::Left => game.on_arrow(&key, Direction::Left),
+                    KeyCode::Right => game.on_arrow(&key, Direction::Right),
                     _ => {}
                 }
             }

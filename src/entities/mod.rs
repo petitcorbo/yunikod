@@ -6,6 +6,7 @@ use self::{bullet::Bullet, fire::Fire};
 pub mod player;
 pub mod bullet;
 pub mod fire;
+pub mod swing;
 
 #[derive(Clone)]
 pub enum Direction {
@@ -50,6 +51,7 @@ impl IndexMut<usize> for Inventory {
 pub enum EntityKind {
     Bullet(Bullet),
     Fire(Fire),
+    Swing(Swing),
 }
 
 impl EntityKind {
@@ -57,6 +59,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.on_tick(),
             EntityKind::Fire(e) => e.on_tick(),
+            EntityKind::Swing(e) => e.on_tick(),
         }
     }
 
@@ -64,6 +67,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.draw(ctx),
             EntityKind::Fire(e) => e.draw(ctx),
+            EntityKind::Swing(e) => e.draw(ctx),
         };
     }
 
@@ -71,6 +75,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.looking_at(),
             EntityKind::Fire(e) => e.looking_at(),
+            EntityKind::Swing(e) => e.looking_at(),
         }
     }
     
@@ -78,6 +83,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.looking(),
             EntityKind::Fire(e) => e.looking(),
+            EntityKind::Swing(e) => e.looking(),
         }
     }
 
@@ -85,6 +91,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.is_dead(),
             EntityKind::Fire(e) => e.is_dead(),
+            EntityKind::Swing(e) => e.is_dead(),
         }
     }
 
@@ -92,6 +99,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.collide(x, y),
             EntityKind::Fire(e) => e.collide(x, y),
+            EntityKind::Swing(e) => e.collide(x, y),
         }
     }
 
@@ -99,6 +107,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.is_harmful(),
             EntityKind::Fire(e) => e.is_harmful(),
+            EntityKind::Swing(e) => e.is_harmful(),
         }
     }
 
@@ -106,6 +115,7 @@ impl EntityKind {
         match self {
             EntityKind::Bullet(e) => e.damage(),
             EntityKind::Fire(e) => e.damage(),
+            EntityKind::Swing(e) => e.damage(),
         }
     }
 }

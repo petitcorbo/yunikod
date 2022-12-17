@@ -3,7 +3,7 @@ use tui::{
     text::Span,
     widgets::canvas::Context,
 };
-use crate::{entities::{Direction, EntityKind}, items::ItemKind};
+use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game};
 
 use super::Inventory;
 
@@ -11,6 +11,7 @@ pub struct Player {
     pub x: f64,
     pub y: f64,
     looking: Direction,
+    moving: bool,
     style: Style,
     inventory: Inventory,
     using: usize,
@@ -25,6 +26,7 @@ impl<'a> Player {
             x,
             y,
             looking: Direction::Up,
+            moving: false,
             style: Style::default().fg(Color::Blue),
             inventory: Inventory::new(),
             using: 0,
@@ -38,10 +40,10 @@ impl<'a> Player {
         &mut self.inventory
     }
 
-    pub fn go(&mut self, direction: Direction, entities: &Vec<EntityKind>) {
+    pub fn step(&mut self, entities: &Vec<EntityKind>) {
         let mut x = self.x;
         let mut y = self.y;
-        match direction {
+        match self.looking {
             Direction::Up => y += 1.0,
             Direction::Down => y -= 1.0,
             Direction::Left => x -= 1.0,
@@ -61,16 +63,32 @@ impl<'a> Player {
             self.x = x;
             self.y = y;
         }
-        self.looking = direction;
     }
 
-    pub fn on_space(&mut self) -> Option<EntityKind> {
-        let coords = self.looking_at().clone();
+    pub fn on_space(&mut self, game: Game) -> Option<EntityKind> {
+        let (x, y, _) = self.looking_at();
         if let &mut Some(item) = &mut self.inventory.0.get(self.using) {
-            item.utilize(coords)
+            if let Some(block) = game.get_block(x, y) {
+                block.collect();
+                None
+            } else {
+                item.utilize((x, y, self.looking.to_owned()))
+            }
         } else {
             None
         }
+    }
+
+    pub fn look(&mut self, direction: Direction) {
+        self.looking = direction;
+    }
+
+    pub fn moving(&mut self, moving: bool) {
+        self.moving = moving;
+    }
+
+    pub fn is_moving(&self) -> bool {
+        self.moving
     }
 
     fn looking_at(&mut self) -> (f64, f64, Direction) {
@@ -100,10 +118,10 @@ impl<'a> Player {
 
     pub fn shape(&self) -> Span<'a> {
         let sprite = match self.looking {
-            Direction::Up => "◓",
-            Direction::Down => "◒",
-            Direction::Left => "◐",
-            Direction::Right => "◑",
+            Direction::Up => "▲",
+            Direction::Down => "▼",
+            Direction::Left => "◀",
+            Direction::Right => "▶",
         };
         Span::styled(sprite, self.style)
     }
@@ -116,7 +134,10 @@ impl<'a> Player {
         self.looking.clone()
     }
 
-    pub fn on_tick(&mut self) {
+    pub fn on_tick(&mut self, entities: &Vec<EntityKind>) {
+        if self.moving {
+            self.step(entities)
+        }
         if self.immunity > 0 {
             self.immunity -= 1;
         }

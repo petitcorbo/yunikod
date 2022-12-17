@@ -10,7 +10,10 @@ fn main() -> Result<(), io::Error> {
     // setup terminal \\
     terminal::enable_raw_mode()?;
     let mut stdout = io::stdout();
-    execute!(stdout, terminal::EnterAlternateScreen)?;
+    execute!(
+        stdout,
+        terminal::EnterAlternateScreen,
+    )?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
@@ -20,7 +23,10 @@ fn main() -> Result<(), io::Error> {
 
     // restore terminal \\
     terminal::disable_raw_mode()?;
-    execute!(terminal.backend_mut(), terminal::LeaveAlternateScreen)?;
+    execute!(
+        terminal.backend_mut(),
+        terminal::LeaveAlternateScreen,
+    )?;
     terminal.show_cursor()?;
 
     if let Err(error) = status {
