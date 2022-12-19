@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{self, Event, KeyCode};
 use perlin2d::PerlinNoise2D;
 use tui::{
     Frame,
@@ -7,99 +7,21 @@ use tui::{
     backend::Backend,
     style::{Style, Color},
     layout::{Layout, Constraint},
-    widgets::{Block, Borders, Paragraph, canvas::{Canvas, Context}, Gauge}, text::Span,
+    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge, List, ListState}
 };
 use std::{
     io,
-    time::{Duration, Instant}, ops::{Index, IndexMut}
+    time::{Duration, Instant}
 };
 use crate::{entities::{
     EntityKind,
     player::Player, Direction
-}, items::{flamethrower::FlameThrower, ItemKind}, blocks::BlockKind};
+}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}};
 
 const TITLE: &str = "Yuni-Kod";
-const CHUNK_SIZE: i32 = 16;
-
-enum Terrain {
-    Water,
-    Grass,
-    Stone
-}
-
-impl Terrain {
-    pub fn color(&self) -> Color {
-        match self {
-            Terrain::Water => Color::Cyan,
-            Terrain::Grass => Color::Green,
-            Terrain::Stone => Color::DarkGray,
-        }
-    }
-
-    pub fn style(&self) -> Style {
-        Style::default().bg(self.color())
-    }
-
-    pub fn span<'a>(&self) -> Span<'a> {
-        match self {
-            Terrain::Water => Span::styled("~", self.style()),
-            Terrain::Grass => Span::styled(" ", self.style()),
-            Terrain::Stone => Span::styled(" ", self.style()),
-        }
-    }
-}
-
-struct Chunk(i32, i32, Vec<(Terrain, Option<BlockKind>)>);
-
-impl Chunk {
-    fn new(col: i32, row: i32, perlin: &PerlinNoise2D) -> Self {
-        let mut terrain = Vec::new();
-        for i in 0..CHUNK_SIZE {
-            for j in 0..CHUNK_SIZE {
-                let x = (col*CHUNK_SIZE + i) as f64;
-                let y = (row*CHUNK_SIZE + j) as f64;
-                let value = perlin.get_noise(x, y);
-                if value >= 0.9 {
-                    terrain.push((Terrain::Stone, None))
-                } else if value >= -1.0 {
-                    terrain.push((Terrain::Grass, None))
-                } else {
-                    terrain.push((Terrain::Water, None))
-                }
-            }
-        }
-        Self(col, row, terrain)
-    }
-
-    fn draw(&self, ctx: &mut Context) {
-        for i in 0..CHUNK_SIZE {
-            for j in 0..CHUNK_SIZE {
-                let x = (self.0*CHUNK_SIZE + i) as f64;
-                let y = (self.1*CHUNK_SIZE + j) as f64;
-                let span = self[(i as usize, j as usize)].0.span();
-                ctx.print(x, y, span)
-            }
-        }
-    }
-}
-
-impl Index<(usize, usize)> for Chunk {
-    type Output = (Terrain, Option<BlockKind>);
-
-    fn index(&self, (i, j): (usize, usize)) -> &Self::Output {
-        &self.2[i * 16 + j]
-    }
-}
-
-impl IndexMut<(usize, usize)> for Chunk {
-    fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut Self::Output {
-        &mut self.2[i * 16 + j]
-    }
-}
 
 pub struct Game {
     should_quit: bool,
-    player: Player,
     entities: Vec<EntityKind>,
     loaded_chunks: Vec<Chunk>,
     offset: (f64, f64),
@@ -110,8 +32,6 @@ pub struct Game {
 
 impl<'a> Game {
     pub fn new() -> Self {
-        let mut player = Player::new(0.0, 0.0);
-        player.pick_up(ItemKind::FT(FlameThrower));
 
         let perlin = PerlinNoise2D::new(
             6,
@@ -125,7 +45,6 @@ impl<'a> Game {
         );
         Game {
             should_quit: false,
-            player,
             entities: Vec::new(),
             loaded_chunks: Vec::new(),
             offset: (0.0, 0.0),
@@ -135,36 +54,17 @@ impl<'a> Game {
         }
     }
 
-    pub fn on_key(&mut self, c: char) {
-        match c {
-            ' ' => {
-                if let Some(entity) = self.player.on_space() {
-                    self.entities.push(entity);
-                }
-            }
-            'q' => self.should_quit = true,
-            _ => {}
-        }
-    }
-
     pub fn on_escape(&mut self) {
         self.should_quit = true;
     }
 
-    pub fn on_arrow(&mut self, key: &KeyEvent, direction: Direction) {
-        self.player.look(direction);
-        if key.modifiers.contains(KeyModifiers::CONTROL) {
-            self.player.moving(false);
-        } else {
-            self.player.moving(true);
-        }
+    pub fn entities(&self) -> &Vec<EntityKind> {
+        &self.entities
     }
 
-    pub fn on_tick(&mut self) {
-        self.player.on_tick(&self.entities);
-        self.player.moving(false);
-        let x = self.player.x() - self.offset.0;
-        let y = self.player.y() - self.offset.1;
+    pub fn on_tick(&mut self, player: &Player) {
+        let x = player.x() - self.offset.0;
+        let y = player.y() - self.offset.1;
         let w = self.x_bounds - 10.0;
         let h = self.y_bounds - 5.0;
 
@@ -193,16 +93,39 @@ impl<'a> Game {
         }
     }
 
-    pub fn get_block(&self, x: f64, y: f64) -> Option<BlockKind> {
+    pub fn get_block(&mut self, x: f64, y: f64) -> Option<&mut BlockKind> {
         let x = x.floor() as i32;
         let y = y.floor() as i32;
-        let chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
-        for chunk in &self.loaded_chunks {
+        let mut chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
+        if x < 0 && x%CHUNK_SIZE != 0 { chunk_idx.0 -= 1 }
+        if y < 0 && y%CHUNK_SIZE != 0 { chunk_idx.1 -= 1 }
+        for chunk in &mut self.loaded_chunks {
             if chunk_idx == (chunk.0, chunk.1) {
-                return chunk[((x%CHUNK_SIZE) as usize, (y%CHUNK_SIZE) as usize)].1;
+                let i = x%CHUNK_SIZE;
+                let j = y%CHUNK_SIZE;
+                let i = ((CHUNK_SIZE+i)%CHUNK_SIZE) as usize;
+                let j = ((CHUNK_SIZE+j)%CHUNK_SIZE) as usize;
+                return chunk[(i, j)].1.as_mut();
             }
         }
         None
+    }
+
+    pub fn destroy_block(&mut self, x: f64, y: f64) {
+        let x = x.floor() as i32;
+        let y = y.floor() as i32;
+        let mut chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
+        if x < 0 { chunk_idx.0 -= 1 }
+        if y < 0 { chunk_idx.1 -= 1 }
+        for chunk in &mut self.loaded_chunks {
+            if chunk_idx == (chunk.0, chunk.1) {
+                let i = x%CHUNK_SIZE;
+                let j = y%CHUNK_SIZE;
+                let i = ((CHUNK_SIZE+i)%CHUNK_SIZE) as usize;
+                let j = ((CHUNK_SIZE+j)%CHUNK_SIZE) as usize;
+                chunk[(i, j)].1 = None;
+            }
+        }
     }
 
     fn set_bounds(&mut self, w: f64, h: f64) {
@@ -233,7 +156,20 @@ impl<'a> Game {
     }
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result<()> {
+fn on_key(game: &mut Game, player: &mut Player, c: char) {
+    match c {
+        ' ' => {
+            if let Some(entity) = player.on_space(game) {
+                game.entities.push(entity);
+            }
+        }
+        'q' => game.should_quit = true,
+        _ => {}
+    }
+}
+
+
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: Player) -> io::Result<()> {
     let tick_rate = Duration::from_millis(50);
     let mut last_tick = Instant::now();
     loop {
@@ -247,12 +183,12 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
-                    KeyCode::Char(c) => game.on_key(c),
+                    KeyCode::Char(c) => on_key(&mut game, &mut player, c),
                     KeyCode::Esc => game.on_escape(),
-                    KeyCode::Up => game.on_arrow(&key, Direction::Up),
-                    KeyCode::Down => game.on_arrow(&key, Direction::Down),
-                    KeyCode::Left => game.on_arrow(&key, Direction::Left),
-                    KeyCode::Right => game.on_arrow(&key, Direction::Right),
+                    KeyCode::Up => player.on_arrow(&key, Direction::Up),
+                    KeyCode::Down => player.on_arrow(&key, Direction::Down),
+                    KeyCode::Left => player.on_arrow(&key, Direction::Left),
+                    KeyCode::Right => player.on_arrow(&key, Direction::Right),
                     _ => {}
                 }
             }
@@ -260,11 +196,13 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
 
         // game update \\
         if last_tick.elapsed() >= tick_rate {
-            game.on_tick();
+            player.on_tick(&mut game);
+            player.moving(false);
+            game.on_tick(&player);
             game.update_chunks();
             last_tick = Instant::now();
         }
-        terminal.draw(|frame| draw(frame, &mut game))?;
+        terminal.draw(|frame| draw(frame, &mut game, &mut player))?;
 
         if game.should_quit {
             return Ok(());
@@ -272,35 +210,40 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game) -> io::Result
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Player) {
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(2)])
         .split(frame.size());
 
-    let hchunks = Layout::default()
+    let hchunks0 = Layout::default()
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .direction(tui::layout::Direction::Horizontal)
         .split(vchunks[0]);
 
     // controls information \\
-    let paragraph = Paragraph::new("")
+    let text = format!("{} {}", player.x(), player.y());
+    let paragraph = Paragraph::new(text)
         .block(Block::default().title(TITLE).borders(Borders::ALL));
-    frame.render_widget(paragraph, hchunks[0]);
+    frame.render_widget(paragraph, hchunks0[0]);
 
     let lifebar = Gauge::default()
         .block(Block::default().title("[Life]").borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
-        .ratio(game.player.life_ratio());
-    frame.render_widget(lifebar, hchunks[1]);
+        .ratio(player.life_ratio());
+    frame.render_widget(lifebar, hchunks0[1]);
+
+    let hchunks1 = Layout::default()
+        .constraints([Constraint::Min(3), Constraint::Length(4)])
+        .direction(tui::layout::Direction::Horizontal)
+        .split(vchunks[1]);
 
     // canvas \\
-    let w = (vchunks[1].width - 3) as f64 / 2.0;
-    let h = (vchunks[1].height - 3) as f64 / 2.0;
+    let w = (hchunks1[0].width - 3) as f64 / 2.0;
+    let h = (hchunks1[0].height - 3) as f64 / 2.0;
     let x_bounds = [-w+game.offset.0, w+game.offset.0];
     let y_bounds = [-h+game.offset.1, h+game.offset.1];
     game.set_bounds(w, h);
 
-    let player = &game.player;
     let canvas = Canvas::default()
         .x_bounds(x_bounds)
         .y_bounds(y_bounds)
@@ -315,6 +258,13 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
                 entity.draw(ctx)
             }
         });
-    frame.render_widget(canvas, vchunks[1]);
+    frame.render_widget(canvas, hchunks1[0]);
+
+    let mut list_state = ListState::default();
+    list_state.select(Some(player.using()));
+    let list = List::new(player.inventory().to_item_list())
+        .block(Block::default().borders(Borders::ALL))
+        .highlight_symbol(">");
+    frame.render_stateful_widget(list, hchunks1[1], &mut list_state);
 }
 

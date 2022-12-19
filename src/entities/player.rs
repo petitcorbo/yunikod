@@ -1,3 +1,4 @@
+use crossterm::event::{KeyEvent, KeyModifiers};
 use tui::{ 
     style::{Color, Style},
     text::Span,
@@ -40,7 +41,11 @@ impl<'a> Player {
         &mut self.inventory
     }
 
-    pub fn step(&mut self, entities: &Vec<EntityKind>) {
+    pub fn using(&self) -> usize {
+        self.using
+    }
+
+    pub fn step(&mut self, game: &mut Game) {
         let mut x = self.x;
         let mut y = self.y;
         match self.looking {
@@ -50,7 +55,7 @@ impl<'a> Player {
             Direction::Right => x += 1.0,
         }
         let mut can_move = true;
-        for entity in entities {
+        for entity in game.entities() {
             if entity.collide(x, y) {
                 can_move = false;
                 if entity.is_harmful() {
@@ -59,17 +64,29 @@ impl<'a> Player {
                 break;
             }
         }
-        if can_move {
+        if can_move && game.get_block(x, y).is_none() {
             self.x = x;
             self.y = y;
         }
     }
 
-    pub fn on_space(&mut self, game: Game) -> Option<EntityKind> {
+    pub fn on_arrow(&mut self, key: &KeyEvent, direction: Direction) {
+        self.look(direction);
+        if key.modifiers.contains(KeyModifiers::CONTROL) {
+            self.moving(false);
+        } else {
+            self.moving(true);
+        }
+    }
+
+    pub fn on_space(&mut self, game: &mut Game) -> Option<EntityKind> {
         let (x, y, _) = self.looking_at();
         if let &mut Some(item) = &mut self.inventory.0.get(self.using) {
             if let Some(block) = game.get_block(x, y) {
                 block.collect();
+                if block.is_destroyed() {
+                    game.destroy_block(x, y);
+                }
                 None
             } else {
                 item.utilize((x, y, self.looking.to_owned()))
@@ -134,9 +151,9 @@ impl<'a> Player {
         self.looking.clone()
     }
 
-    pub fn on_tick(&mut self, entities: &Vec<EntityKind>) {
+    pub fn on_tick(&mut self, game: &mut Game) {
         if self.moving {
-            self.step(entities)
+            self.step(game)
         }
         if self.immunity > 0 {
             self.immunity -= 1;

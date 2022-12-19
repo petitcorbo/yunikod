@@ -4,7 +4,7 @@ use tui::{
     Terminal,
 };
 use std::io;
-use game::game::{Game, run};
+use game::{game::{Game, run}, entities::player::Player, items::{ItemKind, flamethrower::FlameThrower}};
 
 fn main() -> Result<(), io::Error> {
     // setup terminal \\
@@ -19,7 +19,9 @@ fn main() -> Result<(), io::Error> {
 
     // run game \\
     let game = Game::new();
-    let status = run(&mut terminal, game);
+    let mut player = Player::new(0.0, 0.0);
+    player.pick_up(ItemKind::FT(FlameThrower));
+    let status = run(&mut terminal, game, player);
 
     // restore terminal \\
     terminal::disable_raw_mode()?;

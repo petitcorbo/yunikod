@@ -1,12 +1,20 @@
 use tui::{text::Span, style::{Color, Style}};
 use crate::items::{ItemKind, wood::Wood, stone::Stone};
-use super::Block;
+use super::{Block, BlockKind};
 
 pub struct Rock {
     life: u8,
 }
 
 impl Block for Rock {
+    fn generate() -> BlockKind {
+        BlockKind::Rock(
+            Self {
+                life: 15
+            }
+        )
+    }
+
     fn shape<'a>(&self) -> tui::text::Span<'a> {
         let style = Style::default()
             .fg(Color::DarkGray)
@@ -25,5 +33,9 @@ impl Block for Rock {
         } else {
             false
         }
+    }
+
+    fn is_destroyed(&self) -> bool {
+        self.life == 0
     }
 }

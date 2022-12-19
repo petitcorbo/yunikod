@@ -1,7 +1,7 @@
-use tui::{widgets::canvas::Context, text::Span};
+use tui::{widgets::{canvas::Context, ListItem}, text::Span};
 use std::ops::{Index, IndexMut};
 use crate::items::ItemKind;
-use self::{bullet::Bullet, fire::Fire};
+use self::{bullet::Bullet, fire::Fire, swing::Swing};
 
 pub mod player;
 pub mod bullet;
@@ -31,6 +31,14 @@ impl Inventory {
 
     pub fn get(&mut self, index: usize) -> &mut ItemKind {
         &mut self.0[index]
+    }
+
+    pub fn to_item_list(&self) -> Vec<ListItem> {
+        let mut listitem = Vec::new();
+        for item in &self.0 {
+            listitem.push(ListItem::new(item.shape()));
+        }
+        listitem
     }
 }
 
