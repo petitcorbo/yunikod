@@ -28,7 +28,7 @@ impl<'a> Player {
             y,
             looking: Direction::Up,
             moving: false,
-            style: Style::default().fg(Color::Blue),
+            style: Style::default().fg(Color::Black),
             inventory: Inventory::new(),
             using: 0,
             life: 100,

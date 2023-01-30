@@ -7,7 +7,7 @@ use tui::{
     backend::Backend,
     style::{Style, Color},
     layout::{Layout, Constraint},
-    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge, List, ListState}
+    widgets::{Block, Borders, Paragraph, canvas::{Canvas, Context}, Gauge, List, ListState}
 };
 use std::{
     io,
@@ -16,7 +16,7 @@ use std::{
 use crate::{entities::{
     EntityKind,
     player::Player, Direction
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}};
+}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, ui::inventory};
 
 const TITLE: &str = "Yuni-Kod";
 
@@ -34,9 +34,9 @@ impl<'a> Game {
     pub fn new() -> Self {
 
         let perlin = PerlinNoise2D::new(
-            6,
-            1.0,
-            0.5,
+            1,
+            100.0,
+            10.0,
             1.0,
             2.0,
             (100.0, 100.0),
@@ -156,7 +156,7 @@ impl<'a> Game {
     }
 }
 
-fn on_key(game: &mut Game, player: &mut Player, c: char) {
+fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, c: char) {
     match c {
         ' ' => {
             if let Some(entity) = player.on_space(game) {
@@ -164,6 +164,7 @@ fn on_key(game: &mut Game, player: &mut Player, c: char) {
             }
         }
         'q' => game.should_quit = true,
+        'i' => {inventory::run(terminal, game, player);},
         _ => {}
     }
 }
@@ -183,7 +184,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
-                    KeyCode::Char(c) => on_key(&mut game, &mut player, c),
+                    KeyCode::Char(c) => on_key(terminal, &mut game, &mut player, c),
                     KeyCode::Esc => game.on_escape(),
                     KeyCode::Up => player.on_arrow(&key, Direction::Up),
                     KeyCode::Down => player.on_arrow(&key, Direction::Down),
@@ -221,7 +222,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .split(vchunks[0]);
 
     // controls information \\
-    let text = format!("{} {}", player.x(), player.y());
+    let text = format!("x:{} y:{} p:{}", player.x(), player.y(), game.perlin.get_noise(player.x(), player.y()));
     let paragraph = Paragraph::new(text)
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks0[0]);

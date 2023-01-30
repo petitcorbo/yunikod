@@ -1,29 +1,28 @@
-use super::Item;
+use crate::{
+    items::Item,
+    entities::{
+        EntityKind,
+        fire::Fire, Direction,
+    }
+};
 use tui::{text::Span, style::{Style, Color}};
 
-pub struct Hand {
-    quantity: i8,
+pub struct DragonSoul {
+    quantity: i8
 }
 
-impl Hand {
-    pub fn new(quantity: i8) -> Self {
-        Self {
-            quantity
-        }
-    }
-}
-
-impl Item for Hand {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
-        None
+impl Item for DragonSoul {
+    fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind> {
+        let (x, y, direction) = coords;
+        Some(EntityKind::Fire(Fire::new(x, y, direction)))
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {
-        Span::styled(" ", Style::default().fg(Color::Red))
+        Span::styled("@", Style::default().fg(Color::Red))
     }
 
     fn name<'a>() -> &'a str {
-        "hand"
+        "dragon soul"
     }
 
     fn quantity(&self) -> i8 {
@@ -35,9 +34,6 @@ impl Item for Hand {
     }
 
     fn change_quantity(&mut self, amount: i8) -> i8 {
-        if self.quantity == self.max_quantity() {
-            return amount;
-        }
         let prevision = self.quantity + amount;
         if prevision < 0 {
             self.quantity = 0;

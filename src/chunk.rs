@@ -1,13 +1,15 @@
 use std::ops::{Index, IndexMut};
 
 use perlin2d::PerlinNoise2D;
+use rand::{random, thread_rng, Rng};
 use tui::{style::{Color, Style}, text::Span, widgets::canvas::Context};
 
-use crate::blocks::{BlockKind, stones::Stones};
+use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block};
 
 pub const CHUNK_SIZE: i32 = 16;
 
 pub enum Terrain {
+    DeepWater,
     Water,
     Grass,
     Stone
@@ -16,8 +18,9 @@ pub enum Terrain {
 impl Terrain {
     pub fn color(&self) -> Color {
         match self {
+            Terrain::DeepWater => Color::Blue,
             Terrain::Water => Color::Cyan,
-            Terrain::Grass => Color::Green,
+            Terrain::Grass => Color::LightGreen,
             Terrain::Stone => Color::DarkGray,
         }
     }
@@ -28,7 +31,8 @@ impl Terrain {
 
     pub fn span<'a>(&self) -> Span<'a> {
         match self {
-            Terrain::Water => Span::styled("~", self.style()),
+            Terrain::DeepWater => Span::styled(" ", self.style()),
+            Terrain::Water => Span::styled(" ", self.style()),
             Terrain::Grass => Span::styled(" ", self.style()),
             Terrain::Stone => Span::styled(" ", self.style()),
         }
@@ -45,14 +49,22 @@ impl Chunk {
                 let x = (col*CHUNK_SIZE + i) as f64;
                 let y = (row*CHUNK_SIZE + j) as f64;
                 let value = perlin.get_noise(x, y);
-                if value >= 0.98 {
+                if value >= 75.0 {
                     terrain.push((Terrain::Stone, Some(BlockKind::Stones(Stones::new()))))
-                } else if value >= 0.85 {
+                } else if value >= 70.0 {
                     terrain.push((Terrain::Stone, None))
-                } else if value >= -1.0 {
+                } else if value >= 10.0 {
+                    if thread_rng().gen_ratio(1, 5) {
+                        terrain.push((Terrain::Grass, Some(Tree::generate())))
+                    } else {
+                        terrain.push((Terrain::Grass, None))
+                    }
+                } else if value >= 0.0 {
                     terrain.push((Terrain::Grass, None))
-                } else {
+                } else if value >= -25.0 {
                     terrain.push((Terrain::Water, None))
+                } else {
+                    terrain.push((Terrain::DeepWater, None))
                 }
             }
         }

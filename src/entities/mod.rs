@@ -1,5 +1,5 @@
-use tui::{widgets::{canvas::Context, ListItem}, text::Span};
-use std::ops::{Index, IndexMut};
+use tui::{widgets::{canvas::Context, ListItem}, text::{Span, Spans}};
+use std::{ops::{Index, IndexMut}, mem::discriminant};
 use crate::items::ItemKind;
 use self::{bullet::Bullet, fire::Fire, swing::Swing};
 
@@ -16,6 +16,54 @@ pub enum Direction {
     Right,
 }
 
+pub enum Recipe {
+    Axe,
+    Pickaxe,
+    Boat,
+    Armor,
+    Sword,
+    Bow,
+    Arrow
+}
+
+impl Recipe {
+    pub fn needs(&self) -> Vec<(ItemKind, u32)> {
+        match self {
+            Recipe::Pickaxe => Vec::new(),
+            Recipe::Axe => Vec::new(),
+            Recipe::Arrow => Vec::new(),
+            Recipe::Armor => Vec::new(),
+            Recipe::Bow => Vec::new(),
+            Recipe::Boat => Vec::new(),
+            Recipe::Sword => Vec::new()
+        }
+    }
+
+    pub fn is_craftable(&self, inventory: Inventory) -> bool {
+        for (item, amount) in self.needs() {
+            if inventory.total_quantity(item) < amount {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn information(&self) -> Spans {
+        unimplemented!()
+    }
+
+    pub fn recipes() -> Vec<Recipe> {
+        vec![
+            Recipe::Pickaxe,
+            Recipe::Axe,
+            Recipe::Armor,
+            Recipe::Arrow,
+            Recipe::Boat,
+            Recipe::Sword,
+        ]
+    }
+}
+
 pub struct Inventory(Vec<ItemKind>);
 
 impl Inventory {
@@ -23,10 +71,33 @@ impl Inventory {
     pub fn new() -> Self {
         Inventory(Vec::new())
     }
-    
+
     /// add an item to the inventory
-    pub fn add(&mut self, item: ItemKind) {
-        self.0.push(item);
+    pub fn add(&mut self, mut item_to_add: ItemKind) {
+        for item in &mut self.0 {
+            if discriminant(item) == discriminant(&mut item_to_add) {
+                item.change_quantity(item_to_add.quantity());
+                return;
+            }
+        }
+        self.0.push(item_to_add);
+    }
+
+    pub fn total_quantity(&self, item_type: ItemKind) -> u32 {
+        let mut total: u32 = 0;
+        for item in &self.0 {
+            if discriminant(item) == discriminant(&item_type) {
+                total += item.quantity() as u32;
+            }
+        }
+        total
+    }
+
+    pub fn craft(&mut self, recipe: Recipe) -> bool {
+        for (item, amount) in recipe.needs() {
+            unimplemented!();
+        }
+        true
     }
 
     pub fn get(&mut self, index: usize) -> &mut ItemKind {
@@ -39,6 +110,22 @@ impl Inventory {
             listitem.push(ListItem::new(item.shape()));
         }
         listitem
+    }
+
+    pub fn to_extended_item_list(&self) -> Vec<ListItem> {
+        let mut listitem = Vec::new();
+        for item in &self.0 {
+            let spans = Spans::from(vec![
+                item.shape(),
+                Span::from(item.name())
+            ]);
+            listitem.push(ListItem::new(spans));
+        }
+        listitem
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 }
 

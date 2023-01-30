@@ -16,7 +16,7 @@ impl Block for Tree {
     }
 
     fn shape<'a>(&self) -> tui::text::Span<'a> {
-        Span::styled("$", Style::default().fg(tui::style::Color::Green))
+        Span::styled("🌳", Style::default().fg(tui::style::Color::Green))
     }
 
     fn collect(&mut self) -> ItemKind {
