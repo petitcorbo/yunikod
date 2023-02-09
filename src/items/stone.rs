@@ -19,7 +19,7 @@ impl Item for Stone {
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {
-        Span::styled(" ", Style::default().fg(Color::Red))
+        Span::styled("°", Style::default().fg(Color::DarkGray))
     }
 
     fn name<'a>() -> &'a str {
@@ -31,7 +31,7 @@ impl Item for Stone {
     }
 
     fn max_quantity(&self) -> i8 {
-        1
+        10
     }
 
     fn change_quantity(&mut self, amount: i8) -> i8 {

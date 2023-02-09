@@ -1,4 +1,5 @@
 use super::Item;
+use crate::entities::{EntityKind, swing::Swing};
 use tui::{text::Span, style::{Style, Color}};
 
 pub struct Pickaxe {
@@ -15,7 +16,7 @@ impl Pickaxe {
 
 impl Item for Pickaxe {
     fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
-        None
+        Some(EntityKind::Swing(Swing::new(coords.0, coords.1, coords.2, 10)))
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {

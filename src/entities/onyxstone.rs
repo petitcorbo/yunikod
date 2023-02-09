@@ -2,9 +2,11 @@ use tui::{
     style::{Color, Style},
     text::Span, widgets::canvas::Context,
 };
-use crate::entities::{Direction, Entity};
+use crate::{entities::{Direction, Entity}, game::Game};
 
-pub struct Bullet {
+use super::{player::Player, EntityKind};
+
+pub struct OnyxStone {
     x: f64,
     y: f64,
     looking: Direction,
@@ -12,9 +14,9 @@ pub struct Bullet {
     damage: u8,
 }
 
-impl<'a> Bullet {
+impl<'a> OnyxStone {
     pub fn new(x: f64, y: f64, direction: Direction) -> Self {
-        Bullet {
+        Self {
             x,
             y,
             looking: direction,
@@ -24,7 +26,7 @@ impl<'a> Bullet {
     }
 }
 
-impl<'a> Entity<'a> for Bullet {
+impl<'a> Entity<'a> for OnyxStone {
     fn shape(&self) -> Span<'a> {
         Span::styled("*", Style::default().fg(Color::Yellow))
     }
@@ -33,7 +35,7 @@ impl<'a> Entity<'a> for Bullet {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self) {
+    fn on_tick(&mut self, player: &mut Player, game: &Game) {
         match self.looking {
             Direction::Up => self.y += 1.0,
             Direction::Down => self.y -= 1.0,

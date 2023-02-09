@@ -2,7 +2,9 @@ use tui::{
     style::{Color, Style},
     text::Span, widgets::canvas::Context,
 };
-use crate::entities::{Direction, Entity};
+use crate::{entities::{Direction, Entity}, game::Game};
+
+use super::{player::Player, EntityKind};
 
 pub struct Swing {
     x: f64,
@@ -13,13 +15,13 @@ pub struct Swing {
 }
 
 impl<'a> Swing {
-    pub fn new(x: f64, y: f64, direction: Direction) -> Self {
+    pub fn new(x: f64, y: f64, direction: Direction, damage: u8) -> Self {
         Self {
             x,
             y,
             looking: direction,
-            life: 1,
-            damage: 10,
+            life: 3,
+            damage,
         }
     }
 }
@@ -27,10 +29,10 @@ impl<'a> Swing {
 impl<'a> Entity<'a> for Swing {
     fn shape(&self) -> Span<'a> {
         match self.looking {
-            Direction::Up => Span::styled("-", Style::default().fg(Color::Yellow)),
-            Direction::Down => Span::styled("-", Style::default().fg(Color::Yellow)),
-            Direction::Left => Span::styled("|", Style::default().fg(Color::Yellow)),
-            Direction::Right => Span::styled("|", Style::default().fg(Color::Yellow)),
+            Direction::Up => Span::styled("-", Style::default().fg(Color::White)),
+            Direction::Down => Span::styled("-", Style::default().fg(Color::White)),
+            Direction::Left => Span::styled("|", Style::default().fg(Color::White)),
+            Direction::Right => Span::styled("|", Style::default().fg(Color::White)),
         }
     }
 
@@ -38,8 +40,10 @@ impl<'a> Entity<'a> for Swing {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self) {
-        self.life = 0;
+    fn on_tick(&mut self, player: &mut Player, game: &Game) {
+        if self.life > 0 {
+            self.life -= 1;
+        }
     }
 
     fn is_dead(&self) -> bool {

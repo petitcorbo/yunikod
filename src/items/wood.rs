@@ -19,7 +19,7 @@ impl Item for Wood {
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {
-        Span::styled(" ", Style::default().fg(Color::Red))
+        Span::styled("=", Style::default().fg(Color::Yellow))
     }
 
     fn name<'a>() -> &'a str {

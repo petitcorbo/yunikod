@@ -4,7 +4,7 @@ use tui::{
     text::Span,
     widgets::canvas::Context,
 };
-use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game};
+use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, chunk::Terrain};
 
 use super::Inventory;
 
@@ -64,6 +64,11 @@ impl<'a> Player {
                 break;
             }
         }
+        match game.get_tile(x, y) {
+            Terrain::Water => can_move = false,
+            Terrain::DeepWater => can_move = false,
+            _ => {},
+        }
         if can_move && game.get_block(x, y).is_none() {
             self.x = x;
             self.y = y;
@@ -81,19 +86,21 @@ impl<'a> Player {
 
     pub fn on_space(&mut self, game: &mut Game) -> Option<EntityKind> {
         let (x, y, _) = self.looking_at();
+        let mut message = String::new();
         if let &mut Some(item) = &mut self.inventory.0.get(self.using) {
             if let Some(block) = game.get_block(x, y) {
-                block.collect();
+                let item = block.collect();
+                message = format!("collected {} x{}", item.name(), item.quantity());
+                self.inventory.add(item);
                 if block.is_destroyed() {
                     game.destroy_block(x, y);
                 }
-                None
             } else {
-                item.utilize((x, y, self.looking.to_owned()))
+                return item.utilize((x, y, self.looking.to_owned()));
             }
-        } else {
-            None
         }
+        game.set_message(message);
+        None
     }
 
     pub fn look(&mut self, direction: Direction) {

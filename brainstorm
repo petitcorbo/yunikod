@@ -1,5 +1,42 @@
+ ___ ___               __        __  __           __ 
+|   |   |.--.--.-----.|__|______|  |/  |.-----.--|  |
+ \     / |  |  |     ||  |______|     < |  _  |  _  |
+  |___|  |_____|__|__||__|      |__|\__||_____|_____|
+                                                     
+
 https://en.wikipedia.org/wiki/List_of_Unicode_characters
 ########################################################
+
+
+############
+# Entities #
+############
+
+[player]
+
+[Snake]
+S s
+hp:
+damage:
+drop:
+biome: forest
+
+
+[Kraken]
+K k
+hp:
+damage:
+drop:
+- kraken soul
+biome:
+- ocean
+
+[Onyx]
+Oo
+
+[Dragon]
+ΔδΔ
+
 snake: Ϩ
 
 campfire: Ӝ
@@ -9,12 +46,57 @@ fire:
 
 human: ጸ
 
-player:
-shape ◐ ◒ ◓ ◑
-ᘮᘯᘰᘳ
+#########
+# Items #
+#########
+
+[arrow]
+shape:→
+recipe:
+- stick x 1
+- stone x 1
+
+[sword]
+shape: /
+recipe:
+- stick x 5
+- iron x 10
+
+[stick]
+shape: t
+recipe:
+- wood x 1
+
+[armor]
+shape:
+recipe:
+- iron x 5
+
+[bow]
+shape: D
+recipe:
+
+[boat]
+shape: 
+recipe:
+- wood x 50
+
+[axe]
+shape: P
+recipe:
+- stick 3
+- stone 5
+
+[pickaxe]
+shape: T
+recipe:
+- stick 3
+- stone 5
+
+#########
 
 stick:
-ɻ
+t
 
 gold:
 ⡝
@@ -40,7 +122,7 @@ item:
 inventory:
 
 tree:
-$✱
+$
 
 flower:
 ✿
@@ -61,15 +143,10 @@ sword:
 இ
 
 tent:
-Ϡ
+X
 
 bow:
-Ͽ Ͻ ↁ
+D
 
 arrow:
 ←↑→↓
-
-hotspring:
-♨
-
-

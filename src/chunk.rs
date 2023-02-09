@@ -4,7 +4,7 @@ use perlin2d::PerlinNoise2D;
 use rand::{random, thread_rng, Rng};
 use tui::{style::{Color, Style}, text::Span, widgets::canvas::Context};
 
-use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block};
+use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks};
 
 pub const CHUNK_SIZE: i32 = 16;
 
@@ -54,8 +54,12 @@ impl Chunk {
                 } else if value >= 70.0 {
                     terrain.push((Terrain::Stone, None))
                 } else if value >= 10.0 {
-                    if thread_rng().gen_ratio(1, 5) {
+                    if thread_rng().gen_ratio(1, 15) {
                         terrain.push((Terrain::Grass, Some(Tree::generate())))
+                    } else if thread_rng().gen_ratio(1, 100) {
+                        terrain.push((Terrain::Grass, Some(Stones::generate())))
+                    } else if thread_rng().gen_ratio(1, 100) {
+                        terrain.push((Terrain::Grass, Some(Sticks::generate())))
                     } else {
                         terrain.push((Terrain::Grass, None))
                     }

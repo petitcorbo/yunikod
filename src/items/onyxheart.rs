@@ -2,7 +2,7 @@ use crate::{
     items::Item,
     entities::{
         EntityKind,
-        bullet::Bullet, Direction,
+        Direction, onyxstone::OnyxStone,
     }
 };
 use tui::{text::Span, style::{Style, Color}};
@@ -14,7 +14,7 @@ pub struct OnyxHeart {
 impl Item for OnyxHeart {
     fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind> {
         let (x, y, direction) = coords;
-        Some(EntityKind::Bullet(Bullet::new(x, y, direction)))
+        Some(EntityKind::OnyxStone(OnyxStone::new(x, y, direction)))
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {

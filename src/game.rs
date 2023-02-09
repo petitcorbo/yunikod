@@ -1,5 +1,6 @@
 use crossterm::event::{self, Event, KeyCode};
 use perlin2d::PerlinNoise2D;
+use rand::{thread_rng, Rng};
 use tui::{
     Frame,
     symbols,
@@ -7,16 +8,16 @@ use tui::{
     backend::Backend,
     style::{Style, Color},
     layout::{Layout, Constraint},
-    widgets::{Block, Borders, Paragraph, canvas::{Canvas, Context}, Gauge, List, ListState}
+    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge, List, ListState}
 };
 use std::{
     io,
-    time::{Duration, Instant}
+    time::{Duration, Instant}, borrow::BorrowMut
 };
 use crate::{entities::{
     EntityKind,
-    player::Player, Direction
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, ui::inventory};
+    player::Player, Direction, snake::Snake
+}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting}};
 
 const TITLE: &str = "Yuni-Kod";
 
@@ -27,7 +28,9 @@ pub struct Game {
     offset: (f64, f64),
     x_bounds: f64,
     y_bounds: f64,
-    perlin: PerlinNoise2D
+    perlin: PerlinNoise2D,
+    message: String,
+    message_timer: u8
 }
 
 impl<'a> Game {
@@ -50,7 +53,9 @@ impl<'a> Game {
             offset: (0.0, 0.0),
             x_bounds: 0.0,
             y_bounds: 0.0,
-            perlin
+            perlin,
+            message: String::new(),
+            message_timer: 0
         }
     }
 
@@ -62,7 +67,12 @@ impl<'a> Game {
         &self.entities
     }
 
-    pub fn on_tick(&mut self, player: &Player) {
+    pub fn on_tick(&mut self, mut player: &mut Player) {
+        if self.message_timer > 1 {
+            self.message_timer -= 1;
+        } else if self.message_timer == 1 {
+            self.message.clear();
+        }
         let x = player.x() - self.offset.0;
         let y = player.y() - self.offset.1;
         let w = self.x_bounds - 10.0;
@@ -80,17 +90,44 @@ impl<'a> Game {
             self.offset.1 += y-h;
         }
 
+        if thread_rng().gen_ratio(1, 50) {
+            let x = thread_rng().gen_range(-self.x_bounds..self.x_bounds);
+            let y = thread_rng().gen_range(-self.y_bounds..self.y_bounds);
+            let snake = Snake::new(x, y, Direction::Up, 5);
+            self.entities.push(EntityKind::Snake(snake));
+        }
+
         let mut fire_generated = Vec::new();
         for entity in &mut self.entities {
             if let EntityKind::Fire(fire) = entity {
                 fire_generated.extend(fire.spread());
             }
-            entity.on_tick();
+        }
+
+        for i in 0..self.entities.len() {
+            let entity = self.entities[i];
+            let e = entity.borrow_mut();copy
+            e.on_tick(&mut player, &self);
         }
         self.entities.retain(|e| !e.is_dead());
         for fire in fire_generated {
             self.entities.push(fire);
         }
+    }
+
+    pub fn is_available(&self, x: f64, y: f64) -> bool {
+        let mut available = true;
+        for entity in &self.entities {
+            if entity.collide(x, y) {
+                return false;
+            }
+        }
+        match self.get_tile(x, y) {
+            Terrain::Water => available = false,
+            Terrain::DeepWater => available = false,
+            _ => {},
+        }
+        available
     }
 
     pub fn get_block(&mut self, x: f64, y: f64) -> Option<&mut BlockKind> {
@@ -111,6 +148,24 @@ impl<'a> Game {
         None
     }
 
+    pub fn get_tile(&self, x: f64, y: f64) -> &Terrain {
+        let x = x.floor() as i32;
+        let y = y.floor() as i32;
+        let mut chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
+        if x < 0 && x%CHUNK_SIZE != 0 { chunk_idx.0 -= 1 }
+        if y < 0 && y%CHUNK_SIZE != 0 { chunk_idx.1 -= 1 }
+        for chunk in &self.loaded_chunks {
+            if chunk_idx == (chunk.0, chunk.1) {
+                let i = x%CHUNK_SIZE;
+                let j = y%CHUNK_SIZE;
+                let i = ((CHUNK_SIZE+i)%CHUNK_SIZE) as usize;
+                let j = ((CHUNK_SIZE+j)%CHUNK_SIZE) as usize;
+                return &chunk[(i, j)].0;
+            }
+        }
+        &Terrain::Grass
+    }
+
     pub fn destroy_block(&mut self, x: f64, y: f64) {
         let x = x.floor() as i32;
         let y = y.floor() as i32;
@@ -128,12 +183,21 @@ impl<'a> Game {
         }
     }
 
+    pub fn message(&self) -> String {
+        self.message.to_owned()
+    }
+
+    pub fn set_message(&mut self, s: String) {
+        self.message = s;
+        self.message_timer = 10;
+    }
+
     fn set_bounds(&mut self, w: f64, h: f64) {
         self.x_bounds = w;
         self.y_bounds = h;
     }
 
-    fn update_chunks(&mut self) {
+    pub fn update_chunks(&mut self) {
         let n = self.x_bounds as i32 / CHUNK_SIZE + 2;
         let m = self.y_bounds as i32 / CHUNK_SIZE + 2;
         let c = self.offset.0 as i32 / CHUNK_SIZE;
@@ -165,6 +229,7 @@ fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut 
         }
         'q' => game.should_quit = true,
         'i' => {inventory::run(terminal, game, player);},
+        'c' => {crafting::run(terminal, game, player);},
         _ => {}
     }
 }
@@ -199,7 +264,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
         if last_tick.elapsed() >= tick_rate {
             player.on_tick(&mut game);
             player.moving(false);
-            game.on_tick(&player);
+            game.on_tick(&mut player);
             game.update_chunks();
             last_tick = Instant::now();
         }
@@ -213,7 +278,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Player) {
     let vchunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(2)])
+        .constraints([Constraint::Length(3), Constraint::Min(2), Constraint::Length(3)])
         .split(frame.size());
 
     let hchunks0 = Layout::default()
@@ -267,5 +332,9 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .block(Block::default().borders(Borders::ALL))
         .highlight_symbol(">");
     frame.render_stateful_widget(list, hchunks1[1], &mut list_state);
+
+    let para_message = Paragraph::new(game.message.clone())
+        .block(Block::default().title(TITLE).borders(Borders::ALL));
+    frame.render_widget(para_message, vchunks[2]);
 }
 

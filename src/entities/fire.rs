@@ -3,9 +3,9 @@ use tui::{
     style::{Color, Style},
     text::Span, widgets::canvas::Context,
 };
-use crate::entities::{Direction, Entity};
+use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::EntityKind;
+use super::{EntityKind, player::Player};
 
 pub struct Fire {
     x: f64,
@@ -111,7 +111,7 @@ impl<'a> Entity<'a> for Fire {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self) {
+    fn on_tick(&mut self, player: &mut Player, game: &Game) {
         self.life = 0;
     }
 

@@ -1,5 +1,5 @@
 use tui::{text::Span, style::Style};
-use crate::items::{ItemKind, wood::Wood};
+use crate::items::{ItemKind, wood::Wood, stone::Stone};
 use super::{Block, BlockKind};
 
 pub struct Stones {
@@ -18,22 +18,18 @@ impl Block for Stones {
     fn generate() -> BlockKind {
         BlockKind::Stones(
             Self {
-                life: 15
+                life: 1
             }
         )
     }
 
     fn shape<'a>(&self) -> tui::text::Span<'a> {
-        Span::styled("⣿", Style::default().fg(tui::style::Color::Gray))
+        Span::styled("⣿", Style::default().fg(tui::style::Color::DarkGray))
     }
 
     fn collect(&mut self) -> ItemKind {
-        if self.life > 0 {
-            self.life -= 1;
-            ItemKind::Wood(Wood::new(2))
-        } else {
-            ItemKind::Wood(Wood::new(0))
-        }
+        self.life -= 1;
+        ItemKind::Stone(Stone::new(1))
     }
 
     fn is_compatible_tool(item: ItemKind) -> bool {
