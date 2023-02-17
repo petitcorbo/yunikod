@@ -4,7 +4,7 @@ use tui::{
 };
 use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::{player::Player, EntityKind};
+use super::{player::Player, EntityKind, Action};
 
 pub struct Swing {
     x: f64,
@@ -40,10 +40,19 @@ impl<'a> Entity<'a> for Swing {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self, player: &mut Player, game: &Game) {
+    fn go(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+    }
+
+    fn on_tick(&mut self) {
         if self.life > 0 {
             self.life -= 1;
         }
+    }
+
+    fn on_action(&self, player: &mut Player, game: &Game) -> Action {
+        Action::Nothing
     }
 
     fn is_dead(&self) -> bool {

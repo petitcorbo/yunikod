@@ -12,11 +12,11 @@ use tui::{
 };
 use std::{
     io,
-    time::{Duration, Instant}, borrow::BorrowMut
+    time::{Duration, Instant}
 };
 use crate::{entities::{
     EntityKind,
-    player::Player, Direction, snake::Snake
+    player::Player, Direction, snake::Snake, Action
 }, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting}};
 
 const TITLE: &str = "Yuni-Kod";
@@ -67,7 +67,7 @@ impl<'a> Game {
         &self.entities
     }
 
-    pub fn on_tick(&mut self, mut player: &mut Player) {
+    pub fn on_tick(&mut self, player: &mut Player) {
         if self.message_timer > 1 {
             self.message_timer -= 1;
         } else if self.message_timer == 1 {
@@ -97,40 +97,66 @@ impl<'a> Game {
             self.entities.push(EntityKind::Snake(snake));
         }
 
-        let mut fire_generated = Vec::new();
-        for entity in &mut self.entities {
-            if let EntityKind::Fire(fire) = entity {
-                fire_generated.extend(fire.spread());
-            }
-        }
-
         for i in 0..self.entities.len() {
-            let entity = self.entities[i];
-            let e = entity.borrow_mut();copy
-            e.on_tick(&mut player, &self);
+            let action = self.entities[i].on_action(player, self);
+            match action {
+                Action::Move(x, y) => self.entities[i].go(x, y),
+                Action::Spawn(mut entities) => self.entities.append(&mut entities),
+                Action::Attack(id, damage) => self.entities[id].hurt(damage),
+                Action::Nothing => {},
+            };
+            self.entities[i].on_tick();
         }
         self.entities.retain(|e| !e.is_dead());
-        for fire in fire_generated {
-            self.entities.push(fire);
-        }
     }
 
     pub fn is_available(&self, x: f64, y: f64) -> bool {
-        let mut available = true;
-        for entity in &self.entities {
-            if entity.collide(x, y) {
-                return false;
-            }
-        }
+        //self.get_entity(x, y).is_none() &&
+        self.get_block(x, y).is_none() &&
         match self.get_tile(x, y) {
-            Terrain::Water => available = false,
-            Terrain::DeepWater => available = false,
-            _ => {},
+            Terrain::Water => false,
+            Terrain::DeepWater => false,
+            _ => true,
         }
-        available
     }
 
-    pub fn get_block(&mut self, x: f64, y: f64) -> Option<&mut BlockKind> {
+    pub fn get_entity(&self, x: f64, y: f64) -> Option<&EntityKind> {
+        for i in 0..self.entities.len() {
+            if self.entities[i].collide(x, y) {
+                return Some(&self.entities[i]);
+            }
+        }
+        None
+    }
+
+    pub fn get_mut_entity(&mut self, x: f64, y: f64) -> Option<&mut EntityKind> {
+        for i in 0..self.entities.len() {
+            if self.entities[i].collide(x, y) {
+                return Some(&mut self.entities[i]);
+            }
+        }
+        None
+    }
+
+    pub fn get_block(&self, x: f64, y: f64) -> Option<&BlockKind> {
+        let x = x.floor() as i32;
+        let y = y.floor() as i32;
+        let mut chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );
+        if x < 0 && x%CHUNK_SIZE != 0 { chunk_idx.0 -= 1 }
+        if y < 0 && y%CHUNK_SIZE != 0 { chunk_idx.1 -= 1 }
+        for chunk in &self.loaded_chunks {
+            if chunk_idx == (chunk.0, chunk.1) {
+                let i = x%CHUNK_SIZE;
+                let j = y%CHUNK_SIZE;
+                let i = ((CHUNK_SIZE+i)%CHUNK_SIZE) as usize;
+                let j = ((CHUNK_SIZE+j)%CHUNK_SIZE) as usize;
+                return chunk[(i, j)].1.as_ref();
+            }
+        }
+        None
+    }
+
+    pub fn get_mut_block(&mut self, x: f64, y: f64) -> Option<&mut BlockKind> {
         let x = x.floor() as i32;
         let y = y.floor() as i32;
         let mut chunk_idx = ( x / CHUNK_SIZE, y / CHUNK_SIZE );

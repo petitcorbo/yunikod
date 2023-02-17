@@ -5,7 +5,7 @@ use tui::{
 };
 use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::{EntityKind, player::Player};
+use super::{EntityKind, player::Player, Action};
 
 pub struct Fire {
     x: f64,
@@ -28,70 +28,15 @@ impl<'a> Fire {
         }
     }
 
-    pub fn spreaded(x: f64, y: f64, direction: Direction, life: u8) -> Self {
-        Fire {
+    pub fn spreaded(x: f64, y: f64, direction: Direction, life: u8) -> EntityKind {
+        EntityKind::Fire(Fire {
             x,
             y,
             looking: direction,
             life,
             max_life: 10,
             damage: 5,
-        }
-    }
-
-    pub fn spread(&self) -> Vec<EntityKind> {
-        let mut fire = Vec::new();
-        let mut rng = rand::thread_rng();
-        let side_rng = if self.life >= 6 {
-            (self.life - 6) as u32
-        } else { 0 };
-        match self.looking {
-            Direction::Up => {
-                if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-1)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5)));
-                }
-            },
-            Direction::Down => {
-                if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-1)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5)));
-                }
-            },
-            Direction::Left => {
-                if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-1)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5)));
-                }
-            },
-            Direction::Right => {
-                if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-1)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5)));
-                }
-                if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(EntityKind::Fire(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5)));
-                }
-            },
-        };
-        fire
+        })
     }
 }
 
@@ -111,8 +56,68 @@ impl<'a> Entity<'a> for Fire {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self, player: &mut Player, game: &Game) {
+    fn go(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+    }
+
+    fn on_tick(&mut self) {
         self.life = 0;
+    }
+
+    fn on_action(&self, player: &mut Player, game: &Game) -> Action {
+        let mut fire = Vec::new();
+        let mut rng = rand::thread_rng();
+        let side_rng = if self.life >= 6 {
+            (self.life - 6) as u32
+        } else { 0 };
+        match self.looking {
+            Direction::Up => {
+                if rng.gen_ratio(self.life as u32, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-1));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5));
+                }
+            },
+            Direction::Down => {
+                if rng.gen_ratio(self.life as u32, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-1));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5));
+                }
+            },
+            Direction::Left => {
+                if rng.gen_ratio(self.life as u32, self.max_life) {
+                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-1));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5));
+                }
+            },
+            Direction::Right => {
+                if rng.gen_ratio(self.life as u32, self.max_life) {
+                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-1));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5));
+                }
+                if rng.gen_ratio(side_rng, self.max_life) {
+                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5));
+                }
+            },
+        };
+        Action::Spawn(fire)
     }
 
     fn is_dead(&self) -> bool {

@@ -1,6 +1,5 @@
-use tui::{widgets::{canvas::Context, ListItem}, text::{Span, Spans, Text}, style::{Style, Color}};
-use std::{ops::{Index, IndexMut}, mem::discriminant};
-use crate::{items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood}, game::Game, chunk::Chunk};
+use tui::{widgets::canvas::Context, text::Span};
+use crate::game::Game;
 use self::{onyxstone::OnyxStone, fire::Fire, swing::Swing, player::Player, snake::Snake};
 
 pub mod player;
@@ -24,13 +23,47 @@ pub enum EntityKind {
     Snake(Snake),
 }
 
+pub enum Action {
+    Move(f64, f64),
+    Attack(usize, u8),
+    Spawn(Vec<EntityKind>),
+    Nothing
+}
+
 impl EntityKind {
-    pub fn on_tick(&mut self, player: &mut Player, game: &Game) {
+    pub fn on_tick(&mut self) {
         match self {
-            EntityKind::OnyxStone(e) => e.on_tick(player, game),
-            EntityKind::Fire(e) => e.on_tick(player, game),
-            EntityKind::Swing(e) => e.on_tick(player, game),
-            EntityKind::Snake(e) => e.on_tick(player, game),
+            EntityKind::OnyxStone(e) => e.on_tick(),
+            EntityKind::Fire(e) => e.on_tick(),
+            EntityKind::Swing(e) => e.on_tick(),
+            EntityKind::Snake(e) => e.on_tick(),
+        }
+    }
+
+    pub fn go(&mut self, x: f64, y: f64) {
+        match self {
+            EntityKind::OnyxStone(e) => e.go(x, y),
+            EntityKind::Fire(e) => e.go(x, y),
+            EntityKind::Swing(e) => e.go(x, y),
+            EntityKind::Snake(e) => e.go(x, y),
+        }
+    }
+
+    pub fn hurt(&mut self, amount: u8) {
+        match self {
+            EntityKind::OnyxStone(e) => e.hurt(amount),
+            EntityKind::Fire(e) => e.hurt(amount),
+            EntityKind::Swing(e) => e.hurt(amount),
+            EntityKind::Snake(e) => e.hurt(amount),
+        }
+    }
+
+    pub fn on_action(&self, player: &mut Player, game: &Game) -> Action {
+        match self {
+            EntityKind::OnyxStone(e) => e.on_action(player, game),
+            EntityKind::Fire(e) => e.on_action(player, game),
+            EntityKind::Swing(e) => e.on_action(player, game),
+            EntityKind::Snake(e) => e.on_action(player, game),
         }
     }
 
@@ -101,9 +134,11 @@ impl EntityKind {
 pub trait Entity<'a> {
     fn x(&self) -> f64;
     fn y(&self) -> f64;
+    fn go(&mut self, x: f64, y: f64);
     fn shape(&self) -> Span<'a>;
     fn draw<'b>(&'a self, ctx: &mut Context<'b>);
-    fn on_tick(&mut self, player: &mut Player, game: &Game);
+    fn on_tick(&mut self);
+    fn on_action(&self, player: &mut Player, game: &Game) -> Action;
     fn is_dead(&self) -> bool;
     fn hurt(&mut self, amount: u8);
     fn heal(&mut self, amount: u8);

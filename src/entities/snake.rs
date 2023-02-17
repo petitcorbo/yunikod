@@ -4,7 +4,7 @@ use tui::{
 };
 use crate::{entities::{Direction, Entity}, game::{Game, self}, chunk::Terrain};
 
-use super::{player::Player, EntityKind};
+use super::{player::Player, EntityKind, Action};
 
 pub struct Snake {
     x: f64,
@@ -13,7 +13,8 @@ pub struct Snake {
     life: u8,
     damage: u8,
     frame: u8,
-    immunity: u8
+    immunity: u8,
+    speed: f64,
 }
 
 impl<'a> Snake {
@@ -25,7 +26,8 @@ impl<'a> Snake {
             life: 3,
             damage,
             frame: 0,
-            immunity: 0
+            immunity: 0,
+            speed: 0.5
         }
     }
 
@@ -73,21 +75,42 @@ impl<'a> Entity<'a> for Snake {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self, player: &mut Player, game: &Game) {
-        let delta_x = self.x - player.x();
-        let delta_y = self.y - player.y();
+    fn go(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+    }
+
+    fn on_tick(&mut self) {
+        
+    }
+
+    fn on_action(&self, player: &mut Player, game: &Game) -> super::Action {
+        let mut x = self.x;
+        let mut y = self.y;
+        let delta_x = x.floor() - player.x();
+        let delta_y = y.floor() - player.y();
+        if delta_x.abs() < 1.0 && delta_y.abs() < 1.0 {
+            player.hurt(self.damage);
+            println!("OK");
+            return Action::Nothing;
+        }
         if delta_x.abs() > delta_y.abs() {
             if delta_x.is_sign_positive() {
-                self.looking = Direction::Right;
+                x -= self.speed;
             } else {
-                self.looking = Direction::Left;
+                x += self.speed;
             }
         } else {
             if delta_y.is_sign_positive() {
-                self.looking = Direction::Up;
+                y -= self.speed;
             } else {
-                self.looking = Direction::Down;
+                y += self.speed;
             }
+        };
+        if game.is_available(x, y) {
+            return Action::Move(x, y);
+        } else {
+            Action::Nothing
         }
     }
 

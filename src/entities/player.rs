@@ -4,9 +4,7 @@ use tui::{
     text::Span,
     widgets::canvas::Context,
 };
-use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, chunk::Terrain};
-
-use super::Inventory;
+use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, chunk::Terrain, inventory::Inventory};
 
 pub struct Player {
     pub x: f64,
@@ -87,17 +85,16 @@ impl<'a> Player {
     pub fn on_space(&mut self, game: &mut Game) -> Option<EntityKind> {
         let (x, y, _) = self.looking_at();
         let mut message = String::new();
-        if let &mut Some(item) = &mut self.inventory.0.get(self.using) {
-            if let Some(block) = game.get_block(x, y) {
-                let item = block.collect();
-                message = format!("collected {} x{}", item.name(), item.quantity());
-                self.inventory.add(item);
-                if block.is_destroyed() {
-                    game.destroy_block(x, y);
-                }
-            } else {
-                return item.utilize((x, y, self.looking.to_owned()));
+        let item = &mut self.inventory.get(self.using);
+        if let Some(block) = game.get_mut_block(x, y) {
+            let item = block.collect();
+            message = format!("collected {} x{}", item.name(), item.quantity());
+            self.inventory.add(item);
+            if block.is_destroyed() {
+                game.destroy_block(x, y);
             }
+        } else {
+            return item.utilize((x, y, self.looking.to_owned()));
         }
         game.set_message(message);
         None

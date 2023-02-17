@@ -15,8 +15,8 @@ use std::{
 };
 use crate::{entities::{
     EntityKind,
-    player::Player, Direction, Recipe
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, game::Game};
+    player::Player, Direction
+}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, game::Game, inventory::Recipe};
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<()> {
     let mut list_idx = 0;

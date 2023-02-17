@@ -35,7 +35,7 @@ impl<'a> Entity<'a> for OnyxStone {
         ctx.print(self.x, self.y, self.shape())
     }
 
-    fn on_tick(&mut self, player: &mut Player, game: &Game) {
+    fn on_tick(&mut self) {
         match self.looking {
             Direction::Up => self.y += 1.0,
             Direction::Down => self.y -= 1.0,
@@ -45,6 +45,15 @@ impl<'a> Entity<'a> for OnyxStone {
         if !self.is_dead() {
             self.life -= 1;
         }
+    }
+
+    fn go(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+    }
+
+    fn on_action(&self, player: &mut Player, game: &Game) -> super::Action {
+        super::Action::Nothing
     }
 
     fn is_dead(&self) -> bool {
