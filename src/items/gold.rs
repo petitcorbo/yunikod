@@ -14,7 +14,7 @@ impl Gold {
 }
 
 impl Item for Gold {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, _coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         None
     }
 
@@ -24,6 +24,10 @@ impl Item for Gold {
 
     fn name<'a>() -> &'a str {
         "axe"
+    }
+
+    fn damage(&self) -> u8 {
+        0
     }
 
     fn quantity(&self) -> i8 {

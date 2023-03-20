@@ -24,7 +24,7 @@ pub enum EntityKind {
 }
 
 pub enum Action {
-    Move(f64, f64),
+    Move(i64, i64),
     Attack(usize, u8),
     Spawn(Vec<EntityKind>),
     Nothing
@@ -40,7 +40,7 @@ impl EntityKind {
         }
     }
 
-    pub fn go(&mut self, x: f64, y: f64) {
+    pub fn go(&mut self, x: i64, y: i64) {
         match self {
             EntityKind::OnyxStone(e) => e.go(x, y),
             EntityKind::Fire(e) => e.go(x, y),
@@ -69,14 +69,14 @@ impl EntityKind {
 
     pub fn draw(&self, ctx: &mut Context) {
         match self {
-            EntityKind::OnyxStone(e) => e.draw(ctx),
-            EntityKind::Fire(e) => e.draw(ctx),
-            EntityKind::Swing(e) => e.draw(ctx),
-            EntityKind::Snake(e) => e.draw(ctx),
+            EntityKind::OnyxStone(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Fire(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Swing(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Snake(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
         };
     }
 
-    pub fn looking_at(&mut self) -> (f64, f64, Direction) {
+    pub fn looking_at(&mut self) -> (i64, i64, Direction) {
         match self {
             EntityKind::OnyxStone(e) => e.looking_at(),
             EntityKind::Fire(e) => e.looking_at(),
@@ -103,12 +103,12 @@ impl EntityKind {
         }
     }
 
-    pub fn collide(&self, x: f64, y: f64) -> bool {
+    pub fn collide(&self, x: i64, y: i64) -> bool {
         match self {
-            EntityKind::OnyxStone(e) => e.collide(x, y),
-            EntityKind::Fire(e) => e.collide(x, y),
-            EntityKind::Swing(e) => e.collide(x, y),
-            EntityKind::Snake(e) => e.collide(x, y),
+            EntityKind::OnyxStone(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Fire(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Swing(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Snake(e) => (x, y) == (e.x(), e.y()),
         }
     }
 
@@ -129,14 +129,22 @@ impl EntityKind {
             EntityKind::Snake(e) => e.damage(),
         }
     }
+
+    pub fn name<'a>(&self) -> &'a str {
+        match self {
+            EntityKind::OnyxStone(e) => e.name(),
+            EntityKind::Fire(e) => e.name(),
+            EntityKind::Swing(e) => e.name(),
+            EntityKind::Snake(e) => e.name(),
+        }
+    }
 }
 
 pub trait Entity<'a> {
-    fn x(&self) -> f64;
-    fn y(&self) -> f64;
-    fn go(&mut self, x: f64, y: f64);
+    fn x(&self) -> i64;
+    fn y(&self) -> i64;
+    fn go(&mut self, x: i64, y: i64);
     fn shape(&self) -> Span<'a>;
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>);
     fn on_tick(&mut self);
     fn on_action(&self, player: &mut Player, game: &Game) -> Action;
     fn is_dead(&self) -> bool;
@@ -145,18 +153,14 @@ pub trait Entity<'a> {
     fn looking(&mut self) -> Direction;
     fn is_harmful(&self) -> bool;
     fn damage(&self) -> u8;
-    fn looking_at(&mut self) -> (f64, f64, Direction) {
+    fn name<'b>(&self) -> &'b str;
+    
+    fn looking_at(&mut self) -> (i64, i64, Direction) {
         match self.looking() {
-            Direction::Up => (self.x(), self.y() + 1.0, Direction::Up),
-            Direction::Down => (self.x(), self.y() - 1.0, Direction::Down),
-            Direction::Left => (self.x() - 1.0, self.y(), Direction::Left),
-            Direction::Right => (self.x() + 1.0, self.y(), Direction::Right),
+            Direction::Up => (self.x(), self.y() + 1, Direction::Up),
+            Direction::Down => (self.x(), self.y() - 1, Direction::Down),
+            Direction::Left => (self.x() - 1, self.y(), Direction::Left),
+            Direction::Right => (self.x() + 1, self.y(), Direction::Right),
         }
-    }
-
-    fn collide(&self, x: f64, y: f64) -> bool {
-        if self.x() <= x && x <= self.x() + 1.0 && self.y() <= y && y <= self.y() + 1.0 {
-            true
-        } else { false }
     }
 }

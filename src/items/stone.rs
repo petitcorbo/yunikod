@@ -14,7 +14,7 @@ impl Stone {
 }
 
 impl Item for Stone {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, _coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         None
     }
 
@@ -24,6 +24,10 @@ impl Item for Stone {
 
     fn name<'a>() -> &'a str {
         "stone"
+    }
+
+    fn damage(&self) -> u8 {
+        2
     }
 
     fn quantity(&self) -> i8 {

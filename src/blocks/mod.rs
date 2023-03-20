@@ -63,7 +63,7 @@ impl BlockKind {
         }
     }
 
-    pub fn is_compatible_tool(&self, item: ItemKind) -> bool {
+    pub fn is_compatible_tool(&self, item: &ItemKind) -> bool {
         match &self {
             BlockKind::Tree(_) => Tree::is_compatible_tool(item),
             BlockKind::Grass(_) => GrassTuft::is_compatible_tool(item),
@@ -72,7 +72,7 @@ impl BlockKind {
             BlockKind::CoalOre(_) => CoalOre::is_compatible_tool(item),
             BlockKind::Stones(_) => Stones::is_compatible_tool(item),
             BlockKind::Rock(_) => Rock::is_compatible_tool(item),
-            BlockKind::Sticks(_) => Rock::is_compatible_tool(item)
+            BlockKind::Sticks(_) => Sticks::is_compatible_tool(item)
         }
     }
 }
@@ -81,6 +81,6 @@ pub trait Block {
     fn generate() -> BlockKind;
     fn collect(&mut self) -> ItemKind;
     fn shape<'a>(&self) -> Span<'a>;
-    fn is_compatible_tool(item: ItemKind) -> bool;
+    fn is_compatible_tool(item: &ItemKind) -> bool;
     fn is_destroyed(&self) -> bool;
 }

@@ -1,5 +1,5 @@
-use tui::{text::Span, style::Style};
-use crate::items::{ItemKind, wood::Wood, stone::Stone};
+use tui::{text::Span, style::{Style, Color}};
+use crate::items::{ItemKind, stone::Stone};
 use super::{Block, BlockKind};
 
 pub struct Stones {
@@ -24,15 +24,17 @@ impl Block for Stones {
     }
 
     fn shape<'a>(&self) -> tui::text::Span<'a> {
-        Span::styled("⣿", Style::default().fg(tui::style::Color::DarkGray))
+        Span::styled("⣿", Style::default().fg(Color::DarkGray))
     }
 
     fn collect(&mut self) -> ItemKind {
-        self.life -= 1;
+        if self.life > 0 {
+            self.life -= 1;
+        }
         ItemKind::Stone(Stone::new(1))
     }
 
-    fn is_compatible_tool(item: ItemKind) -> bool {
+    fn is_compatible_tool(item: &ItemKind) -> bool {
         match item {
             ItemKind::Hand(_) => true,
             ItemKind::Pickaxe(_) => true,

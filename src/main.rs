@@ -4,7 +4,7 @@ use tui::{
     Terminal,
 };
 use std::io;
-use game::{game::{Game, run}, entities::player::Player, items::{ItemKind, axe::Axe}};
+use game::{game::{Game, run}, entities::player::Player};
 
 fn main() -> Result<(), io::Error> {
     // setup terminal \\
@@ -21,19 +21,10 @@ fn main() -> Result<(), io::Error> {
     let mut game = Game::new();
     game.update_chunks();
     let mut x = 0.0;
-    loop {
-        match game.get_tile(x, 0.0) {
-            game::chunk::Terrain::Water => {
-                x += 1.0;
-            }
-            game::chunk::Terrain::DeepWater => {
-                x += 1.0;
-            }
-            _ => { break }
-        }
+    while game.perlin().get_noise(x, 0.0) < 0.0 {
+        x += 1.0
     }
-    let mut player = Player::new(x, 0.0);
-    player.pick_up(ItemKind::Axe(Axe::new(1)));
+    let player = Player::new(x as i64, 0);
     let status = run(&mut terminal, game, player);
 
     // restore terminal \\

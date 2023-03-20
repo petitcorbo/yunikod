@@ -1,6 +1,6 @@
 use tui::{widgets::ListItem, text::{Span, Spans, Text}, style::{Style, Color}};
 use std::{ops::{Index, IndexMut}, mem::discriminant};
-use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood};
+use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood, hand::Hand};
 
 #[derive(Clone)]
 pub enum Direction {
@@ -23,13 +23,13 @@ pub enum Recipe {
 impl Recipe {
     pub fn get_item(&self) -> ItemKind {
         match self {
-            Recipe::Axe => ItemKind::Axe(Axe::new(1)),
+            Recipe::Axe => ItemKind::Axe(Axe::new()),
             Recipe::Pickaxe => ItemKind::Pickaxe(Pickaxe::new(1)),
-            Recipe::Boat => ItemKind::Axe(Axe::new(1)),
-            Recipe::Armor => ItemKind::Axe(Axe::new(1)),
-            Recipe::Arrow => ItemKind::Axe(Axe::new(1)),
-            Recipe::Sword => ItemKind::Axe(Axe::new(1)),
-            Recipe::Bow => ItemKind::Axe(Axe::new(1)),
+            Recipe::Boat => ItemKind::Axe(Axe::new()),
+            Recipe::Armor => ItemKind::Axe(Axe::new()),
+            Recipe::Arrow => ItemKind::Axe(Axe::new()),
+            Recipe::Sword => ItemKind::Axe(Axe::new()),
+            Recipe::Bow => ItemKind::Axe(Axe::new()),
         }
     }
 
@@ -106,12 +106,17 @@ impl Inventory {
         Inventory(Vec::new())
     }
 
+    pub fn new_player() -> Self {
+        Inventory(vec![ItemKind::Hand(Hand::new(1))])
+    }
+
     /// add an item to the inventory
     pub fn add(&mut self, mut item_to_add: ItemKind) {
+        let mut quantity = item_to_add.quantity();
         for item in &mut self.0 {
             if discriminant(item) == discriminant(&mut item_to_add) {
-                item.change_quantity(item_to_add.quantity());
-                return;
+                quantity = item.change_quantity(quantity);
+                if quantity == 0 { return }
             }
         }
         self.0.push(item_to_add);
@@ -145,6 +150,7 @@ impl Inventory {
                     }
                 }
             }
+            self.0.retain(|i| i.quantity() > 0);
             self.add(recipe.get_item());
             String::from("crafting")
         } else {

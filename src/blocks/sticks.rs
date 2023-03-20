@@ -20,12 +20,15 @@ impl Block for Sticks {
     }
 
     fn collect(&mut self) -> ItemKind {
-        self.life -= 1;
+        if self.life > 0 {
+            self.life -= 1;
+        }
         ItemKind::Stick(Stick::new(1))
     }
 
-    fn is_compatible_tool(item: ItemKind) -> bool {
+    fn is_compatible_tool(item: &ItemKind) -> bool {
         match item {
+            ItemKind::Hand(_) => true,
             ItemKind::Axe(_) => true,
             _ => false
         }

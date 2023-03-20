@@ -1,21 +1,21 @@
 use tui::{    
     style::{Color, Style},
-    text::Span, widgets::canvas::Context,
+    text::Span,
 };
 use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::{player::Player, EntityKind, Action};
+use super::{player::Player, Action};
 
 pub struct Swing {
-    x: f64,
-    y: f64,
+    x: i64,
+    y: i64,
     looking: Direction,
     life: u8,
     damage: u8,
 }
 
 impl<'a> Swing {
-    pub fn new(x: f64, y: f64, direction: Direction, damage: u8) -> Self {
+    pub fn new(x: i64, y: i64, direction: Direction, damage: u8) -> Self {
         Self {
             x,
             y,
@@ -27,6 +27,10 @@ impl<'a> Swing {
 }
 
 impl<'a> Entity<'a> for Swing {
+    fn name<'b>(&self) -> &'b str {
+        "swing"
+    }
+
     fn shape(&self) -> Span<'a> {
         match self.looking {
             Direction::Up => Span::styled("-", Style::default().fg(Color::White)),
@@ -36,11 +40,7 @@ impl<'a> Entity<'a> for Swing {
         }
     }
 
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
-        ctx.print(self.x, self.y, self.shape())
-    }
-
-    fn go(&mut self, x: f64, y: f64) {
+    fn go(&mut self, x: i64, y: i64) {
         self.x = x;
         self.y = y;
     }
@@ -51,8 +51,12 @@ impl<'a> Entity<'a> for Swing {
         }
     }
 
-    fn on_action(&self, player: &mut Player, game: &Game) -> Action {
-        Action::Nothing
+    fn on_action(&self, _player: &mut Player, game: &Game) -> Action {
+        if let Some(entity_id) = game.get_entity_id(self.x, self.y) {
+            Action::Attack(entity_id, self.damage)
+        } else {
+            Action::Nothing
+        }
     }
 
     fn is_dead(&self) -> bool {
@@ -63,11 +67,11 @@ impl<'a> Entity<'a> for Swing {
         self.looking.to_owned()
     }
 
-    fn x(&self) -> f64 {
+    fn x(&self) -> i64 {
         self.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> i64 {
         self.y
     }
 

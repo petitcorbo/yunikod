@@ -1,24 +1,25 @@
+use rand::Rng;
 use tui::{    
     style::{Color, Style},
-    text::Span, widgets::canvas::Context,
+    text::Span,
 };
-use crate::{entities::{Direction, Entity}, game::{Game, self}, chunk::Terrain};
+use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::{player::Player, EntityKind, Action};
+use super::{player::Player, Action};
 
 pub struct Snake {
-    x: f64,
-    y: f64,
+    x: i64,
+    y: i64,
     looking: Direction,
     life: u8,
     damage: u8,
     frame: u8,
     immunity: u8,
-    speed: f64,
+    until_next_step: u8,
 }
 
 impl<'a> Snake {
-    pub fn new(x: f64, y: f64, direction: Direction, damage: u8) -> Self {
+    pub fn new(x: i64, y: i64, direction: Direction, damage: u8) -> Self {
         Self {
             x,
             y,
@@ -27,87 +28,81 @@ impl<'a> Snake {
             damage,
             frame: 0,
             immunity: 0,
-            speed: 0.5
-        }
-    }
-
-    pub fn step(&mut self, game: &mut Game) {
-        let mut x = self.x;
-        let mut y = self.y;
-        match self.looking {
-            Direction::Up => y += 1.0,
-            Direction::Down => y -= 1.0,
-            Direction::Left => x -= 1.0,
-            Direction::Right => x += 1.0,
-        }
-        let mut can_move = true;
-        for entity in game.entities() {
-            if entity.collide(x, y) {
-                can_move = false;
-                if entity.is_harmful() {
-                    self.hurt(entity.damage());
-                }
-                break;
-            }
-        }
-        match game.get_tile(x, y) {
-            Terrain::Water => can_move = false,
-            Terrain::DeepWater => can_move = false,
-            _ => {},
-        }
-        if can_move && game.get_block(x, y).is_none() {
-            self.x = x;
-            self.y = y;
+            until_next_step: 10
         }
     }
 }
 
 impl<'a> Entity<'a> for Snake {
+    fn name<'b>(&self) -> &'b str {
+        "snake"
+    }
+
     fn shape(&self) -> Span<'a> {
         if self.frame < 10 {
-            Span::styled("S", Style::default().fg(Color::Yellow))
+            Span::styled("S", Style::default().fg(Color::Red))
         } else {
-            Span::styled("s", Style::default().fg(Color::Yellow))
+            Span::styled("s", Style::default().fg(Color::Red))
         }
     }
 
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
-        ctx.print(self.x, self.y, self.shape())
-    }
-
-    fn go(&mut self, x: f64, y: f64) {
-        self.x = x;
-        self.y = y;
+    fn go(&mut self, x: i64, y: i64) {
+        if self.until_next_step > 0 {
+            self.until_next_step -= 1;
+        } else {
+            self.x = x;
+            self.y = y;
+            self.until_next_step = 10;
+        }
     }
 
     fn on_tick(&mut self) {
-        
+        self.frame = (self.frame + 1) % 20;
     }
 
     fn on_action(&self, player: &mut Player, game: &Game) -> super::Action {
         let mut x = self.x;
         let mut y = self.y;
-        let delta_x = x.floor() - player.x();
-        let delta_y = y.floor() - player.y();
-        if delta_x.abs() < 1.0 && delta_y.abs() < 1.0 {
+        let delta_x = (x - player.x()).abs();
+        let delta_y = (y - player.y()).abs();
+
+        // hurt the player if he is in range
+        if (delta_x == 1 && delta_y == 0) || (delta_x == 0 && delta_y == 1) {
             player.hurt(self.damage);
-            println!("OK");
             return Action::Nothing;
         }
-        if delta_x.abs() > delta_y.abs() {
-            if delta_x.is_sign_positive() {
-                x -= self.speed;
+
+        // try to move
+        if self.until_next_step > 0 {
+            return Action::Move(x, y);
+        }
+        // chase player if in agro zone
+        if delta_x < 10 && delta_y < 10 {
+            if delta_x > delta_y {
+                if x > player.x() {
+                    x -= 1;
+                } else {
+                    x += 1;
+                }
             } else {
-                x += self.speed;
+                if y > player.y() {
+                    y -= 1;
+                } else {
+                    y += 1;
+                }
             }
         } else {
-            if delta_y.is_sign_positive() {
-                y -= self.speed;
-            } else {
-                y += self.speed;
+            // move randomly
+            match rand::thread_rng().gen_range(0..=3) {
+                0 => x += 1,
+                1 => x -= 1,
+                2 => y += 1,
+                3 => y -= 1,
+                _ => {}
             }
-        };
-        if game.is_available(x, y) {
+        }
+        // check if there is something already at the coordinates
+        if game.is_available(x, y) && (player.x() != x || player.y() != y) {
             return Action::Move(x, y);
         } else {
             Action::Nothing
@@ -122,16 +117,26 @@ impl<'a> Entity<'a> for Snake {
         self.looking.to_owned()
     }
 
-    fn x(&self) -> f64 {
+    fn x(&self) -> i64 {
         self.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> i64 {
         self.y
     }
 
     fn heal(&mut self, _amount: u8) {}
-    fn hurt(&mut self, _amount: u8) {}
+
+    fn hurt(&mut self, amount: u8) {
+        if self.immunity == 0 {
+            if self.life < amount {
+                self.life = 0;
+            } else {
+                self.life -= amount;
+            }
+            self.immunity = 10
+        }
+    }
 
     fn is_harmful(&self) -> bool {
         true

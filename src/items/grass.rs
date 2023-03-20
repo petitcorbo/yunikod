@@ -14,7 +14,7 @@ impl Grass {
 }
 
 impl Item for Grass {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, _coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         None
     }
 
@@ -24,6 +24,10 @@ impl Item for Grass {
 
     fn name<'a>() -> &'a str {
         "grass"
+    }
+
+    fn damage(&self) -> u8 {
+        1
     }
 
     fn quantity(&self) -> i8 {

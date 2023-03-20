@@ -1,15 +1,15 @@
 use rand::Rng;
 use tui::{    
     style::{Color, Style},
-    text::Span, widgets::canvas::Context,
+    text::Span,
 };
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{EntityKind, player::Player, Action};
 
 pub struct Fire {
-    x: f64,
-    y: f64,
+    x: i64,
+    y: i64,
     looking: Direction,
     life: u8,
     max_life: u32,
@@ -17,7 +17,7 @@ pub struct Fire {
 }
 
 impl<'a> Fire {
-    pub fn new(x: f64, y: f64, direction: Direction) -> Self {
+    pub fn new(x: i64, y: i64, direction: Direction) -> Self {
         Fire {
             x,
             y,
@@ -28,7 +28,7 @@ impl<'a> Fire {
         }
     }
 
-    pub fn spreaded(x: f64, y: f64, direction: Direction, life: u8) -> EntityKind {
+    pub fn spreaded(x: i64, y: i64, direction: Direction, life: u8) -> EntityKind {
         EntityKind::Fire(Fire {
             x,
             y,
@@ -41,6 +41,10 @@ impl<'a> Fire {
 }
 
 impl<'a> Entity<'a> for Fire {
+    fn name<'b>(&self) -> &'b str {
+        "fire"
+    }
+
     fn shape(&self) -> Span<'a> {
         let color = match self.life {
             10 => Color::White,
@@ -52,11 +56,7 @@ impl<'a> Entity<'a> for Fire {
         Span::styled("@", Style::default().fg(color))
     }
 
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
-        ctx.print(self.x, self.y, self.shape())
-    }
-
-    fn go(&mut self, x: f64, y: f64) {
+    fn go(&mut self, x: i64, y: i64) {
         self.x = x;
         self.y = y;
     }
@@ -65,7 +65,7 @@ impl<'a> Entity<'a> for Fire {
         self.life = 0;
     }
 
-    fn on_action(&self, player: &mut Player, game: &Game) -> Action {
+    fn on_action(&self, _player: &mut Player, _game: &Game) -> Action {
         let mut fire = Vec::new();
         let mut rng = rand::thread_rng();
         let side_rng = if self.life >= 6 {
@@ -74,46 +74,46 @@ impl<'a> Entity<'a> for Fire {
         match self.looking {
             Direction::Up => {
                 if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-1));
+                    fire.push(Fire::spreaded(self.x, self.y+1, self.looking.to_owned(), self.life-1));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x-1, self.y, self.looking.to_owned(), self.life-5));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x+1, self.y, self.looking.to_owned(), self.life-5));
                 }
             },
             Direction::Down => {
                 if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-1));
+                    fire.push(Fire::spreaded(self.x, self.y-1, self.looking.to_owned(), self.life-1));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x-1, self.y, self.looking.to_owned(), self.life-5));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x+1, self.y, self.looking.to_owned(), self.life-5));
                 }
             },
             Direction::Left => {
                 if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(Fire::spreaded(self.x-1.0, self.y, self.looking.to_owned(), self.life-1));
+                    fire.push(Fire::spreaded(self.x-1, self.y, self.looking.to_owned(), self.life-1));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x, self.y-1, self.looking.to_owned(), self.life-5));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x, self.y+1, self.looking.to_owned(), self.life-5));
                 }
             },
             Direction::Right => {
                 if rng.gen_ratio(self.life as u32, self.max_life) {
-                    fire.push(Fire::spreaded(self.x+1.0, self.y, self.looking.to_owned(), self.life-1));
+                    fire.push(Fire::spreaded(self.x+1, self.y, self.looking.to_owned(), self.life-1));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y-1.0, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x, self.y-1, self.looking.to_owned(), self.life-5));
                 }
                 if rng.gen_ratio(side_rng, self.max_life) {
-                    fire.push(Fire::spreaded(self.x, self.y+1.0, self.looking.to_owned(), self.life-5));
+                    fire.push(Fire::spreaded(self.x, self.y+1, self.looking.to_owned(), self.life-5));
                 }
             },
         };
@@ -128,11 +128,11 @@ impl<'a> Entity<'a> for Fire {
         self.looking.to_owned()
     }
 
-    fn x(&self) -> f64 {
+    fn x(&self) -> i64 {
         self.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> i64 {
         self.y
     }
 
@@ -145,9 +145,5 @@ impl<'a> Entity<'a> for Fire {
     
     fn damage(&self) -> u8 {
         self.damage
-    }
-
-    fn collide(&self, _x: f64, _y: f64) -> bool {
-        false
     }
 }

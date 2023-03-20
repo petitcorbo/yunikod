@@ -4,11 +4,11 @@ use tui::{
     text::Span,
     widgets::canvas::Context,
 };
-use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, chunk::Terrain, inventory::Inventory};
+use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, inventory::Inventory};
 
 pub struct Player {
-    pub x: f64,
-    pub y: f64,
+    pub x: i64,
+    pub y: i64,
     looking: Direction,
     moving: bool,
     style: Style,
@@ -20,18 +20,18 @@ pub struct Player {
 }
 
 impl<'a> Player {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: i64, y: i64) -> Self {
         Player {
             x,
             y,
             looking: Direction::Up,
             moving: false,
             style: Style::default().fg(Color::Black),
-            inventory: Inventory::new(),
+            inventory: Inventory::new_player(),
             using: 0,
             life: 100,
             max_life: 100,
-            immunity: 0,
+            immunity: 20,
         }
     }
 
@@ -42,32 +42,21 @@ impl<'a> Player {
     pub fn using(&self) -> usize {
         self.using
     }
+    
+    pub fn set_using(&mut self, idx: usize) {
+        self.using = idx
+    }
 
     pub fn step(&mut self, game: &mut Game) {
         let mut x = self.x;
         let mut y = self.y;
         match self.looking {
-            Direction::Up => y += 1.0,
-            Direction::Down => y -= 1.0,
-            Direction::Left => x -= 1.0,
-            Direction::Right => x += 1.0,
+            Direction::Up => y += 1,
+            Direction::Down => y -= 1,
+            Direction::Left => x -= 1,
+            Direction::Right => x += 1,
         }
-        let mut can_move = true;
-        for entity in game.entities() {
-            if entity.collide(x, y) {
-                can_move = false;
-                if entity.is_harmful() {
-                    self.hurt(entity.damage());
-                }
-                break;
-            }
-        }
-        match game.get_tile(x, y) {
-            Terrain::Water => can_move = false,
-            Terrain::DeepWater => can_move = false,
-            _ => {},
-        }
-        if can_move && game.get_block(x, y).is_none() {
+        if game.is_available(x, y) {
             self.x = x;
             self.y = y;
         }
@@ -84,16 +73,26 @@ impl<'a> Player {
 
     pub fn on_space(&mut self, game: &mut Game) -> Option<EntityKind> {
         let (x, y, _) = self.looking_at();
-        let mut message = String::new();
-        let item = &mut self.inventory.get(self.using);
+        let mut message: String;
+        message = format!("{} {} test", x , y);
+        let item = self.inventory.get(self.using);
         if let Some(block) = game.get_mut_block(x, y) {
-            let item = block.collect();
-            message = format!("collected {} x{}", item.name(), item.quantity());
-            self.inventory.add(item);
-            if block.is_destroyed() {
-                game.destroy_block(x, y);
+            if block.is_compatible_tool(item) {
+                let item_collected = block.collect();
+                message = format!("collected {} x{}", item_collected.name(), item.quantity());
+                self.inventory.add(item_collected);
+                if block.is_destroyed() {
+                    game.destroy_block(x, y);
+                }
+            } else {
+                message = format!("you can't do that");
             }
+        } else if let Some(entity_id) = game.get_entity_id(x, y) {
+            let entity = &mut game.mut_entities()[entity_id];
+            entity.hurt(item.damage());
+            message = format!("dealt {} to {}", item.damage(), entity.name());
         } else {
+            game.set_message(message);
             return item.utilize((x, y, self.looking.to_owned()));
         }
         game.set_message(message);
@@ -112,12 +111,12 @@ impl<'a> Player {
         self.moving
     }
 
-    fn looking_at(&mut self) -> (f64, f64, Direction) {
+    fn looking_at(&mut self) -> (i64, i64, Direction) {
         match self.looking() {
-            Direction::Up => (self.x(), self.y() + 1.0, Direction::Up),
-            Direction::Down => (self.x(), self.y() - 1.0, Direction::Down),
-            Direction::Left => (self.x() - 1.0, self.y(), Direction::Left),
-            Direction::Right => (self.x() + 1.0, self.y(), Direction::Right),
+            Direction::Up => (self.x(), self.y() + 1, Direction::Up),
+            Direction::Down => (self.x(), self.y() - 1, Direction::Down),
+            Direction::Left => (self.x() - 1, self.y(), Direction::Left),
+            Direction::Right => (self.x() + 1, self.y(), Direction::Right),
         }
     }
 
@@ -126,15 +125,15 @@ impl<'a> Player {
     }
 
     pub fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
-        ctx.print(self.x, self.y, self.shape())
+        ctx.print(self.x as f64, self.y as f64, self.shape())
     }
 
-    pub fn x(&self) -> f64 {
-        self.x.floor()
+    pub fn x(&self) -> i64 {
+        self.x
     }
 
-    pub fn y(&self) -> f64 {
-        self.y.floor()
+    pub fn y(&self) -> i64 {
+        self.y
     }
 
     pub fn shape(&self) -> Span<'a> {
@@ -174,7 +173,7 @@ impl<'a> Player {
     pub fn hurt(&mut self, amount: u8) {
         if self.life >= amount && self.immunity == 0 {
             self.life -= amount;
-            self.immunity = 5;
+            self.immunity = 20;
         }
     }
 

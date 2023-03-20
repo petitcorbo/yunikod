@@ -15,7 +15,7 @@ impl Stick {
 }
 
 impl Item for Stick {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         Some(EntityKind::Swing(Swing::new(coords.0, coords.1, coords.2, 10)))
     }
 
@@ -26,6 +26,10 @@ impl Item for Stick {
 
     fn name<'a>() -> &'a str {
         "stick"
+    }
+
+    fn damage(&self) -> u8 {
+        2
     }
 
     fn quantity(&self) -> i8 {

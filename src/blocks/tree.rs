@@ -24,7 +24,7 @@ impl Block for Tree {
         ItemKind::Wood(Wood::new(2))
     }
 
-    fn is_compatible_tool(item: ItemKind) -> bool {
+    fn is_compatible_tool(item: &ItemKind) -> bool {
         match item {
             ItemKind::Axe(_) => true,
             _ => false

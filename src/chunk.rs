@@ -1,12 +1,12 @@
 use std::ops::{Index, IndexMut};
 
 use perlin2d::PerlinNoise2D;
-use rand::{random, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 use tui::{style::{Color, Style}, text::Span, widgets::canvas::Context};
 
-use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks};
+use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks, rock::Rock};
 
-pub const CHUNK_SIZE: i32 = 16;
+pub const CHUNK_SIZE: i64 = 16;
 
 pub enum Terrain {
     DeepWater,
@@ -18,10 +18,10 @@ pub enum Terrain {
 impl Terrain {
     pub fn color(&self) -> Color {
         match self {
-            Terrain::DeepWater => Color::Blue,
-            Terrain::Water => Color::Cyan,
-            Terrain::Grass => Color::LightGreen,
-            Terrain::Stone => Color::DarkGray,
+            Terrain::DeepWater => Color::Rgb(54, 181, 201),
+            Terrain::Water => Color::Rgb(54, 201, 148),
+            Terrain::Grass => Color::Rgb(70, 201, 54),
+            Terrain::Stone => Color::Rgb(84, 106, 78),
         }
     }
 
@@ -39,19 +39,19 @@ impl Terrain {
     }
 }
 
-pub struct Chunk(pub i32, pub i32, pub Vec<(Terrain, Option<BlockKind>)>);
+pub struct Chunk(pub i64, pub i64, pub Vec<(Terrain, Option<BlockKind>)>);
 
 impl Chunk {
-    pub fn new(col: i32, row: i32, perlin: &PerlinNoise2D) -> Self {
+    pub fn new(col: i64, row: i64, perlin: &PerlinNoise2D) -> Self {
         let mut terrain = Vec::new();
         for i in 0..CHUNK_SIZE {
             for j in 0..CHUNK_SIZE {
                 let x = (col*CHUNK_SIZE + i) as f64;
                 let y = (row*CHUNK_SIZE + j) as f64;
                 let value = perlin.get_noise(x, y);
-                if value >= 75.0 {
-                    terrain.push((Terrain::Stone, Some(BlockKind::Stones(Stones::new()))))
-                } else if value >= 70.0 {
+                if value >= 40.0 {
+                    terrain.push((Terrain::Stone, Some(Rock::generate())))
+                } else if value >= 30.0 {
                     terrain.push((Terrain::Stone, None))
                 } else if value >= 10.0 {
                     if thread_rng().gen_ratio(1, 15) {
@@ -86,6 +86,35 @@ impl Chunk {
                     ctx.print(x, y, block.shape());
                 }
             }
+        }
+    }
+
+    pub fn average_terrain(&self) -> Terrain {
+        let mut counter = [0; 4];
+        for i in 0..CHUNK_SIZE {
+            for j in 0..CHUNK_SIZE {
+                match self[(i as usize, j as usize)].0 {
+                    Terrain::DeepWater => counter[0] += 1,
+                    Terrain::Water => counter[1] += 1,
+                    Terrain::Grass => counter[2] += 1,
+                    Terrain::Stone => counter[3] += 1,
+                }
+            }
+        }
+        let mut max = 0;
+        let mut idx = 0;
+        for (i, c) in counter.iter().enumerate() {
+            if c > &max {
+                idx = i;
+                max = *c;
+            }
+        }
+        match idx {
+            0 => Terrain::DeepWater,
+            1 => Terrain::Water,
+            2 => Terrain::Grass,
+            3 => Terrain::Stone,
+            _ => Terrain::Grass
         }
     }
 }

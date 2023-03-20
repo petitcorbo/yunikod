@@ -35,7 +35,7 @@ pub enum ItemKind {
 }
 
 impl ItemKind {
-    pub fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind> {
+    pub fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind> {
         match self {
             ItemKind::OH(i) => i.utilize(coords),
             ItemKind::DS(i) => i.utilize(coords),
@@ -49,6 +49,23 @@ impl ItemKind {
             ItemKind::Pickaxe(i) => i.utilize(coords),
             ItemKind::Axe(i) => i.utilize(coords),
             ItemKind::Hand(i) => i.utilize(coords),
+        }
+    }
+
+    pub fn damage(&self) -> u8 {
+        match self {
+            ItemKind::OH(i) => i.damage(),
+            ItemKind::DS(i) => i.damage(),
+            ItemKind::Stick(i) => i.damage(),
+            ItemKind::Stone(i) => i.damage(),
+            ItemKind::Gold(i) => i.damage(),
+            ItemKind::Grass(i) => i.damage(),
+            ItemKind::Wood(i) => i.damage(),
+            ItemKind::Iron(i) => i.damage(),
+            ItemKind::Coal(i) => i.damage(),
+            ItemKind::Pickaxe(i) => i.damage(),
+            ItemKind::Axe(i) => i.damage(),
+            ItemKind::Hand(i) => i.damage(),
         }
     }
 
@@ -121,10 +138,11 @@ impl ItemKind {
 }
 
 pub trait Item {
-    fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind>;
+    fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind>;
     fn shape<'a>() -> Span<'a>;
     fn name<'a>() -> &'a str;
     fn quantity(&self) -> i8;
     fn max_quantity(&self) -> i8;
     fn change_quantity(&mut self, amount: i8) -> i8;
+    fn damage(&self) -> u8;
 }

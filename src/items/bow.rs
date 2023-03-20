@@ -10,7 +10,7 @@ use tui::{text::Span, style::{Style, Color}};
 pub struct Bow;
 
 impl Item for Bow {
-    fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind> {
+    fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind> {
         let (x, y, direction) = coords;
         Some(EntityKind::Bullet(Bullet::new(x, y, direction)))
     }

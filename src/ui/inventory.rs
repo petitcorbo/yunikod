@@ -1,24 +1,19 @@
 use crossterm::event::{self, Event, KeyCode};
-use perlin2d::PerlinNoise2D;
 use tui::{
     Frame,
-    symbols,
     Terminal,
     backend::Backend,
     style::{Style, Color},
     layout::{Layout, Constraint},
-    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge, List, ListState}
+    widgets::{Block, Borders, Paragraph, Gauge, List, ListState}, text::{Spans, Span}
 };
-use std::{
-    io,
-    time::{Duration, Instant}
+use std::io;
+use crate::{
+    entities::player::Player,
+    game::Game
 };
-use crate::{entities::{
-    EntityKind,
-    player::Player, Direction
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, game::Game};
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<()> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<u8> {
     let mut list_idx = 0;
     loop {
         // draw \\
@@ -27,13 +22,15 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
         // input handler \\
         if let Event::Key(key) = event::read()? {
             match key.code {
-                KeyCode::Esc => return Ok(()),
+                KeyCode::Esc => return Ok(0),
                 KeyCode::Up => {
                     if list_idx > 0 {list_idx -= 1};
                 },
                 KeyCode::Down => {
                     if list_idx < player.inventory().len() - 1 {list_idx += 1};
                 },
+                KeyCode::Right => return Ok(2),
+                KeyCode::Enter => player.set_using(list_idx),
                 _ => {}
             }
         }
@@ -41,7 +38,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, list_idx: usize) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player, list_idx: usize) {
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Length(3), Constraint::Min(3), Constraint::Length(3)])
         .split(frame.size());
@@ -56,11 +53,13 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
         .direction(tui::layout::Direction::Horizontal)
         .split(vchunks[1]);
 
-    let gauge_foodbar = Gauge::default()
-        .block(Block::default().title("[Food]").borders(Borders::ALL))
-        .gauge_style(Style::default().fg(Color::LightYellow))
-        .ratio(player.life_ratio());
-    frame.render_widget(gauge_foodbar, hchunks0[0]);
+    let tabs = vec![
+        Span::styled("inventory", Style::default().fg(Color::Green)),
+        Span::raw(" | crafting | map | menu"),
+    ];
+    let para_tabs = Paragraph::new(Spans::from(tabs))
+        .block(Block::default().title("[Tab]").borders(Borders::ALL));
+    frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
         .block(Block::default().title("[Life]").borders(Borders::ALL))

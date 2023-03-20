@@ -14,16 +14,20 @@ impl Hand {
 }
 
 impl Item for Hand {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, _coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         None
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {
-        Span::styled(" ", Style::default().fg(Color::Red))
+        Span::styled("h", Style::default().fg(Color::Red))
     }
 
     fn name<'a>() -> &'a str {
         "hand"
+    }
+
+    fn damage(&self) -> u8 {
+        1
     }
 
     fn quantity(&self) -> i8 {

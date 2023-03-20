@@ -1,21 +1,21 @@
 use tui::{    
     style::{Color, Style},
-    text::Span, widgets::canvas::Context,
+    text::Span,
 };
 use crate::{entities::{Direction, Entity}, game::Game};
 
-use super::{player::Player, EntityKind};
+use super::player::Player;
 
 pub struct OnyxStone {
-    x: f64,
-    y: f64,
+    x: i64,
+    y: i64,
     looking: Direction,
     life: u8,
     damage: u8,
 }
 
 impl<'a> OnyxStone {
-    pub fn new(x: f64, y: f64, direction: Direction) -> Self {
+    pub fn new(x: i64, y: i64, direction: Direction) -> Self {
         Self {
             x,
             y,
@@ -27,32 +27,32 @@ impl<'a> OnyxStone {
 }
 
 impl<'a> Entity<'a> for OnyxStone {
+    fn name<'b>(&self) -> &'b str {
+        "onyx stone"
+    }
+
     fn shape(&self) -> Span<'a> {
         Span::styled("*", Style::default().fg(Color::Yellow))
     }
 
-    fn draw<'b>(&'a self, ctx: &mut Context<'b>) {
-        ctx.print(self.x, self.y, self.shape())
-    }
-
     fn on_tick(&mut self) {
         match self.looking {
-            Direction::Up => self.y += 1.0,
-            Direction::Down => self.y -= 1.0,
-            Direction::Left => self.x -= 1.0,
-            Direction::Right => self.x += 1.0,
+            Direction::Up => self.y += 1,
+            Direction::Down => self.y -= 1,
+            Direction::Left => self.x -= 1,
+            Direction::Right => self.x += 1,
         }
         if !self.is_dead() {
             self.life -= 1;
         }
     }
 
-    fn go(&mut self, x: f64, y: f64) {
+    fn go(&mut self, x: i64, y: i64) {
         self.x = x;
         self.y = y;
     }
 
-    fn on_action(&self, player: &mut Player, game: &Game) -> super::Action {
+    fn on_action(&self, _player: &mut Player, _game: &Game) -> super::Action {
         super::Action::Nothing
     }
 
@@ -64,11 +64,11 @@ impl<'a> Entity<'a> for OnyxStone {
         self.looking.to_owned()
     }
 
-    fn x(&self) -> f64 {
+    fn x(&self) -> i64 {
         self.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> i64 {
         self.y
     }
 

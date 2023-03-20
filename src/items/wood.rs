@@ -14,7 +14,7 @@ impl Wood {
 }
 
 impl Item for Wood {
-    fn utilize(&self, coords: (f64, f64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
+    fn utilize(&self, _coords: (i64, i64, crate::entities::Direction)) -> Option<crate::entities::EntityKind> {
         None
     }
 
@@ -26,12 +26,16 @@ impl Item for Wood {
         "wood"
     }
 
+    fn damage(&self) -> u8 {
+        2
+    }
+
     fn quantity(&self) -> i8 {
         self.quantity
     }
 
     fn max_quantity(&self) -> i8 {
-        1
+        20
     }
 
     fn change_quantity(&mut self, amount: i8) -> i8 {

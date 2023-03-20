@@ -1,24 +1,19 @@
 use crossterm::event::{self, Event, KeyCode};
-use perlin2d::PerlinNoise2D;
 use tui::{
     Frame,
-    symbols,
     Terminal,
     backend::Backend,
     style::{Style, Color},
     layout::{Layout, Constraint},
-    widgets::{Block, Borders, Paragraph, canvas::Canvas, Gauge, List, ListState}
+    widgets::{Block, Borders, Paragraph, Gauge, List, ListState}, text::{Spans, Span}
 };
-use std::{
-    io,
-    time::{Duration, Instant}
+use std::io;
+use crate::{
+    entities::player::Player,
+    game::Game, inventory::Recipe
 };
-use crate::{entities::{
-    EntityKind,
-    player::Player, Direction
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE}, game::Game, inventory::Recipe};
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<()> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<u8> {
     let mut list_idx = 0;
     loop {
         // draw \\
@@ -27,7 +22,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
         // input handler \\
         if let Event::Key(key) = event::read()? {
             match key.code {
-                KeyCode::Esc => return Ok(()),
+                KeyCode::Esc => return Ok(0),
                 KeyCode::Enter => {
                     let msg = player.inventory().craft(&Recipe::recipes()[list_idx]);
                     game.set_message(msg);
@@ -38,6 +33,8 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
                 KeyCode::Down => {
                     if list_idx < Recipe::recipes().len() - 1 {list_idx += 1};
                 },
+                KeyCode::Left => return Ok(1),
+                KeyCode::Right => return Ok(3),
                 _ => {}
             }
         }
@@ -55,9 +52,14 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
         .direction(tui::layout::Direction::Horizontal)
         .split(vchunks[0]);
 
-    let para_help = Paragraph::new("help")
-        .block(Block::default().title("[Food]").borders(Borders::ALL));
-    frame.render_widget(para_help, hchunks0[0]);
+    let tabs = vec![
+        Span::raw("inventory | "),
+        Span::styled("crafting", Style::default().fg(Color::Green)),
+        Span::raw(" | map | menu"),
+    ];
+    let para_tabs = Paragraph::new(Spans::from(tabs))
+        .block(Block::default().title("[Tab]").borders(Borders::ALL));
+    frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
         .block(Block::default().title("[Life]").borders(Borders::ALL))

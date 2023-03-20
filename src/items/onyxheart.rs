@@ -12,7 +12,7 @@ pub struct OnyxHeart {
 }
 
 impl Item for OnyxHeart {
-    fn utilize(&self, coords: (f64, f64, Direction)) -> Option<EntityKind> {
+    fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind> {
         let (x, y, direction) = coords;
         Some(EntityKind::OnyxStone(OnyxStone::new(x, y, direction)))
     }
@@ -23,6 +23,10 @@ impl Item for OnyxHeart {
 
     fn name<'a>() -> &'a str {
         "onyx heart"
+    }
+
+    fn damage(&self) -> u8 {
+        1
     }
 
     fn quantity(&self) -> i8 {
