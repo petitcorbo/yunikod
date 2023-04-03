@@ -66,6 +66,9 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player) 
             for chunk in game.loaded_chunks() {
                 ctx.print(chunk.0 as f64, chunk.1 as f64, chunk.average_terrain().span());
             }
+            for chunk in game.unused_chunks() {
+                ctx.print(chunk.0 as f64, chunk.1 as f64, chunk.average_terrain().span());
+            }
             ctx.print((player.x()/16) as f64, (player.y()/16) as f64, Span::styled("+", Style::default().fg(Color::Red)));
         });
     frame.render_widget(canvas, vchunks[1]);

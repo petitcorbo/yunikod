@@ -4,7 +4,7 @@ use perlin2d::PerlinNoise2D;
 use rand::{thread_rng, Rng};
 use tui::{style::{Color, Style}, text::Span, widgets::canvas::Context};
 
-use crate::blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks, rock::Rock};
+use crate::{blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks, rock::Rock}, entities::{EntityKind, snake::Snake, ovis::Ovis}};
 
 pub const CHUNK_SIZE: i64 = 16;
 
@@ -35,6 +35,16 @@ impl Terrain {
             Terrain::Water => Span::styled(" ", self.style()),
             Terrain::Grass => Span::styled(" ", self.style()),
             Terrain::Stone => Span::styled(" ", self.style()),
+        }
+    }
+
+    pub fn random_entity(&self, x: i64, y: i64) -> Option<EntityKind> {
+        match self {
+            Terrain::Grass => match thread_rng().gen_range(1..=2) {
+                1 => Some(EntityKind::Snake(Snake::new(x, y))),
+                _ => Some(EntityKind::Ovis(Ovis::new(x, y))),
+            },
+            _ => None,
         }
     }
 }

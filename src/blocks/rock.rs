@@ -17,7 +17,7 @@ impl Block for Rock {
 
     fn shape<'a>(&self) -> tui::text::Span<'a> {
         let style = Style::default()
-            .fg(Color::Gray)
+            .fg(Color::Rgb(84, 106, 78))
             .bg(Color::DarkGray);
         Span::styled("⣿", style)
     }

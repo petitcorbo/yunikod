@@ -16,7 +16,7 @@ use std::{
 };
 use crate::{entities::{
     EntityKind,
-    player::Player, Direction, snake::Snake, Action
+    player::Player, Direction, Action
 }, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting, map}};
 
 const TITLE: &str = "Yuni-Kod";
@@ -25,9 +25,10 @@ pub struct Game {
     should_quit: bool,
     entities: Vec<EntityKind>,
     loaded_chunks: Vec<Chunk>,
-    offset: (f64, f64),
-    x_bounds: f64,
-    y_bounds: f64,
+    unused_chunks: Vec<Chunk>,
+    offset: (i64, i64),
+    x_bounds: i64,
+    y_bounds: i64,
     perlin: PerlinNoise2D,
     message: String,
     message_timer: u8
@@ -50,9 +51,10 @@ impl<'a> Game {
             should_quit: false,
             entities: Vec::new(),
             loaded_chunks: Vec::new(),
-            offset: (0.0, 0.0),
-            x_bounds: 0.0,
-            y_bounds: 0.0,
+            unused_chunks: Vec::new(),
+            offset: (0, 0),
+            x_bounds: 0,
+            y_bounds: 0,
             perlin,
             message: String::new(),
             message_timer: 0
@@ -75,6 +77,10 @@ impl<'a> Game {
         &self.loaded_chunks
     }
 
+    pub fn unused_chunks(&self) -> &Vec<Chunk> {
+        &self.unused_chunks
+    }
+
     pub fn perlin(&self) -> &PerlinNoise2D {
         &self.perlin
     }
@@ -88,13 +94,13 @@ impl<'a> Game {
         }
 
         // update camera
-        let x = player.x() as f64 - self.offset.0;
-        let y = player.y() as f64 - self.offset.1;
-        let w = self.x_bounds - 10.0;
-        let h = self.y_bounds - 5.0;
+        let x = player.x() - self.offset.0;
+        let y = player.y() - self.offset.1;
+        let w = self.x_bounds / 3;
+        let h = self.y_bounds / 3;
 
         if x < -w {
-            self.offset.0 += w+x;
+            self.offset.0 += x+w;
         } else if x > w {
             self.offset.0 += x-w;
         }
@@ -105,16 +111,14 @@ impl<'a> Game {
             self.offset.1 += y-h;
         }
 
-        // spawn enemies
+        // spawn entities
         if thread_rng().gen_ratio(1, 50) {
-            let x = thread_rng().gen_range(-self.x_bounds..self.x_bounds) as i64;
-            let y = thread_rng().gen_range(-self.y_bounds..self.y_bounds) as i64;
-            match self.get_tile(x, y) {
-                Terrain::Grass => {
-                    let snake = Snake::new(x, y, Direction::Up, 5);
-                    self.entities.push(EntityKind::Snake(snake));
-                }
-                _ => {}
+            let x_range = (-self.x_bounds+self.offset.0)..(self.x_bounds+self.offset.0);
+            let y_range = (-self.y_bounds+self.offset.1)..(self.y_bounds+self.offset.1);
+            let x = thread_rng().gen_range(x_range) as i64;
+            let y = thread_rng().gen_range(y_range) as i64;
+            if let Some(entity) = self.get_tile(x, y).random_entity(x, y) {
+                self.entities.push(entity);
             }
         }
 
@@ -216,6 +220,7 @@ impl<'a> Game {
                 let i = ((CHUNK_SIZE+i)%CHUNK_SIZE) as usize;
                 let j = ((CHUNK_SIZE+j)%CHUNK_SIZE) as usize;
                 chunk[(i, j)].1 = None;
+                return;
             }
         }
     }
@@ -229,30 +234,56 @@ impl<'a> Game {
         self.message_timer = 20;
     }
 
-    fn set_bounds(&mut self, w: f64, h: f64) {
+    fn set_bounds(&mut self, w: i64, h: i64) {
         self.x_bounds = w;
         self.y_bounds = h;
     }
 
     pub fn update_chunks(&mut self) {
-        let n = self.x_bounds as i64 / CHUNK_SIZE + 2;
-        let m = self.y_bounds as i64 / CHUNK_SIZE + 2;
-        let c = self.offset.0 as i64 / CHUNK_SIZE;
-        let r = self.offset.1 as i64 / CHUNK_SIZE;
-
-        for i in -n..=n {
-            for j in -m..=m {
+        let x0 = (-self.x_bounds + self.offset.0) as i64;
+        let x1 = ( self.x_bounds + self.offset.0) as i64;
+        let y0 = (-self.y_bounds + self.offset.1) as i64;
+        let y1 = ( self.y_bounds + self.offset.1) as i64;
+        let mut c0 = ( x0 / CHUNK_SIZE, y0 / CHUNK_SIZE );
+        if x0 < 0 { c0.0 -= 1 }
+        if y0 < 0 { c0.1 -= 1 }
+        let mut c1 = ( x1 / CHUNK_SIZE + 1, y1 / CHUNK_SIZE + 1);
+        if x1 < 0 { c1.0 -= 1 }
+        if y1 < 0 { c1.1 -= 1 }
+        
+        // load chunks
+        for i in c0.0..=c1.0 {
+            for j in c0.1..=c1.1 {
                 let mut found = false;
                 for chunk in &self.loaded_chunks {
-                    if chunk.0 == c+i && chunk.1 == r+j {
+                    if chunk.0 == i && chunk.1 == j {
                         found = true;
                         break
                     }
                 }
-                if !found {
-                    self.loaded_chunks.push(Chunk::new(c+i, r+j, &self.perlin))
+                if !found { // check in unused chunks
+                    for idx in 0..self.unused_chunks.len() {
+                        if self.unused_chunks[idx].0 == i && self.unused_chunks[idx].1 == j {
+                            self.loaded_chunks.push(self.unused_chunks.swap_remove(idx));
+                            found = true;
+                            break
+                        }
+                    }
+                }
+                if !found { // create chunk
+                    self.loaded_chunks.push(Chunk::new(i, j, &self.perlin))
                 }
             }
+        }
+
+        // unload chunks
+        let n_range = c0.0..=c1.0;
+        let m_range = c0.1..=c1.1;
+        let mut idx = 0;
+        while idx < self.loaded_chunks.len() {
+            if !n_range.contains(&(self.loaded_chunks[idx].0)) || !m_range.contains(&(self.loaded_chunks[idx].1)) {
+                self.unused_chunks.push(self.loaded_chunks.swap_remove(idx));
+            } else { idx += 1 }
         }
     }
 }
@@ -335,7 +366,8 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .split(vchunks[0]);
 
     // controls information \\
-    let text = format!("x:{} y:{} p:{}", player.x(), player.y(), game.perlin.get_noise(player.x() as f64, player.y() as f64));
+    //let text = format!("x:{} y:{} p:{}", player.x(), player.y(), game.perlin.get_noise(player.x() as f64, player.y() as f64));
+    let text = format!("nbr of loaded chunks:{} | nbr of unused chunks:{} | x:{} | y:{}", game.loaded_chunks.len(), game.unused_chunks.len(), player.x(), player.y());
     let paragraph = Paragraph::new(text)
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks0[0]);
@@ -352,11 +384,12 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .split(vchunks[1]);
 
     // canvas \\
-    let w = (hchunks1[0].width - 3) as f64 / 2.0;
-    let h = (hchunks1[0].height - 3) as f64 / 2.0;
-    let x_bounds = [-w+game.offset.0, w+game.offset.0];
-    let y_bounds = [-h+game.offset.1, h+game.offset.1];
+    let w = (hchunks1[0].width as i64 - 3) / 2;
+    let h = (hchunks1[0].height as i64 - 3) / 2;
+    let x_bounds = [(-w+game.offset.0) as f64, (w+game.offset.0) as f64];
+    let y_bounds = [(-h+game.offset.1) as f64, (h+game.offset.1) as f64];
     game.set_bounds(w, h);
+    // game.set_message(format!("x:{:?} | y: {:?}", x_bounds, y_bounds));
 
     let canvas = Canvas::default()
         .x_bounds(x_bounds)
@@ -364,8 +397,8 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .block(Block::default().title(TITLE).borders(Borders::ALL))
         .marker(symbols::Marker::Block)
         .paint(|ctx| {
-            for chunck in &game.loaded_chunks {
-                chunck.draw(ctx);
+            for chunk in &game.loaded_chunks {
+                chunk.draw(ctx);
             }
             player.draw(ctx);
             for entity in &game.entities {
@@ -385,4 +418,3 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(para_message, vchunks[2]);
 }
-
