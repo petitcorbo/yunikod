@@ -1,6 +1,6 @@
 use tui::{widgets::canvas::Context, text::Span};
 use crate::game::Game;
-use self::{onyxstone::OnyxStone, fire::Fire, swing::Swing, player::Player, snake::Snake, ovis::Ovis};
+use self::{onyxstone::OnyxStone, fire::Fire, swing::Swing, player::Player, snake::Snake, ovis::Ovis, crawler::Crawler, golem::Golem, scorpy::Scorpy};
 
 pub mod player;
 pub mod onyxstone;
@@ -8,6 +8,9 @@ pub mod fire;
 pub mod swing;
 pub mod snake;
 pub mod ovis;
+pub mod scorpy;
+pub mod golem;
+pub mod crawler;
 
 #[derive(Clone)]
 pub enum Direction {
@@ -23,6 +26,9 @@ pub enum EntityKind {
     Swing(Swing),
     Snake(Snake),
     Ovis(Ovis),
+    Scorpy(Scorpy),
+    Golem(Golem),
+    Crawler(Crawler),
 }
 
 pub enum Action {
@@ -40,6 +46,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.on_tick(),
             EntityKind::Snake(e) => e.on_tick(),
             EntityKind::Ovis(e) => e.on_tick(),
+            EntityKind::Scorpy(e) => e.on_tick(),
+            EntityKind::Golem(e) => e.on_tick(),
+            EntityKind::Crawler(e) => e.on_tick(),
         }
     }
 
@@ -50,6 +59,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.go(x, y),
             EntityKind::Snake(e) => e.go(x, y),
             EntityKind::Ovis(e) => e.go(x, y),
+            EntityKind::Scorpy(e) => e.go(x, y),
+            EntityKind::Golem(e) => e.go(x, y),
+            EntityKind::Crawler(e) => e.go(x, y),
         }
     }
 
@@ -60,6 +72,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.hurt(amount),
             EntityKind::Snake(e) => e.hurt(amount),
             EntityKind::Ovis(e) => e.hurt(amount),
+            EntityKind::Scorpy(e) => e.hurt(amount),
+            EntityKind::Golem(e) => e.hurt(amount),
+            EntityKind::Crawler(e) => e.hurt(amount),
         }
     }
 
@@ -70,6 +85,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.on_action(player, game),
             EntityKind::Snake(e) => e.on_action(player, game),
             EntityKind::Ovis(e) => e.on_action(player, game),
+            EntityKind::Scorpy(e) => e.on_action(player, game),
+            EntityKind::Golem(e) => e.on_action(player, game),
+            EntityKind::Crawler(e) => e.on_action(player, game),
         }
     }
 
@@ -80,6 +98,9 @@ impl EntityKind {
             EntityKind::Swing(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
             EntityKind::Snake(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
             EntityKind::Ovis(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Scorpy(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Golem(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Crawler(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
         };
     }
 
@@ -90,6 +111,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.looking_at(),
             EntityKind::Snake(e) => e.looking_at(),
             EntityKind::Ovis(e) => e.looking_at(),
+            EntityKind::Scorpy(e) => e.looking_at(),
+            EntityKind::Golem(e) => e.looking_at(),
+            EntityKind::Crawler(e) => e.looking_at(),
         }
     }
     
@@ -100,6 +124,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.looking(),
             EntityKind::Snake(e) => e.looking(),
             EntityKind::Ovis(e) => e.looking(),
+            EntityKind::Scorpy(e) => e.looking(),
+            EntityKind::Golem(e) => e.looking(),
+            EntityKind::Crawler(e) => e.looking(),
         }
     }
 
@@ -110,6 +137,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.is_dead(),
             EntityKind::Snake(e) => e.is_dead(),
             EntityKind::Ovis(e) => e.is_dead(),
+            EntityKind::Scorpy(e) => e.is_dead(),
+            EntityKind::Golem(e) => e.is_dead(),
+            EntityKind::Crawler(e) => e.is_dead(),
         }
     }
 
@@ -120,6 +150,9 @@ impl EntityKind {
             EntityKind::Swing(e) => (x, y) == (e.x(), e.y()),
             EntityKind::Snake(e) => (x, y) == (e.x(), e.y()),
             EntityKind::Ovis(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Scorpy(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Golem(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Crawler(e) => (x, y) == (e.x(), e.y()),
         }
     }
 
@@ -130,6 +163,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.is_harmful(),
             EntityKind::Snake(e) => e.is_harmful(),
             EntityKind::Ovis(e) => e.is_harmful(),
+            EntityKind::Scorpy(e) => e.is_harmful(),
+            EntityKind::Golem(e) => e.is_harmful(),
+            EntityKind::Crawler(e) => e.is_harmful(),
         }
     }
 
@@ -140,6 +176,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.damage(),
             EntityKind::Snake(e) => e.damage(),
             EntityKind::Ovis(e) => e.damage(),
+            EntityKind::Scorpy(e) => e.damage(),
+            EntityKind::Golem(e) => e.damage(),
+            EntityKind::Crawler(e) => e.damage(),
         }
     }
 
@@ -150,6 +189,9 @@ impl EntityKind {
             EntityKind::Swing(e) => e.name(),
             EntityKind::Snake(e) => e.name(),
             EntityKind::Ovis(e) => e.name(),
+            EntityKind::Scorpy(e) => e.name(),
+            EntityKind::Golem(e) => e.name(),
+            EntityKind::Crawler(e) => e.name(),
         }
     }
 }

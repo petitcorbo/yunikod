@@ -4,7 +4,7 @@ use perlin2d::PerlinNoise2D;
 use rand::{thread_rng, Rng};
 use tui::{style::{Color, Style}, text::Span, widgets::canvas::Context};
 
-use crate::{blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks, rock::Rock}, entities::{EntityKind, snake::Snake, ovis::Ovis}};
+use crate::{blocks::{BlockKind, stones::Stones, tree::Tree, Block, sticks::Sticks, rock::Rock}, entities::{EntityKind, snake::Snake, ovis::Ovis, scorpy::Scorpy}};
 
 pub const CHUNK_SIZE: i64 = 16;
 
@@ -44,7 +44,9 @@ impl Terrain {
                 1 => Some(EntityKind::Snake(Snake::new(x, y))),
                 _ => Some(EntityKind::Ovis(Ovis::new(x, y))),
             },
-            _ => None,
+            Terrain::Stone => Some(EntityKind::Scorpy(Scorpy::new(x, y))),
+            Terrain::Water => None,
+            Terrain::DeepWater => None,
         }
     }
 }

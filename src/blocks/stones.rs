@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use tui::{text::Span, style::{Style, Color}};
 use crate::items::{ItemKind, stone::Stone};
 use super::{Block, BlockKind};
@@ -18,13 +19,19 @@ impl Block for Stones {
     fn generate() -> BlockKind {
         BlockKind::Stones(
             Self {
-                life: 1
+                life: thread_rng().gen_range(1..=4)
             }
         )
     }
 
     fn shape<'a>(&self) -> tui::text::Span<'a> {
-        Span::styled("⣿", Style::default().fg(Color::DarkGray))
+        let glyph = match self.life {
+            1 => "⠁",
+            2 => "⠡",
+            3 => "⠣",
+            _ => "⠫"
+        };
+        Span::styled(glyph, Style::default().fg(Color::DarkGray))
     }
 
     fn collect(&mut self) -> ItemKind {

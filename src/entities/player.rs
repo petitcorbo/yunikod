@@ -171,9 +171,13 @@ impl<'a> Player {
     }
 
     pub fn hurt(&mut self, amount: u8) {
-        if self.life >= amount && self.immunity == 0 {
-            self.life -= amount;
-            self.immunity = 20;
+        if self.immunity == 0 {
+            if self.life >= amount {
+                self.life -= amount;
+                self.immunity = 20;
+            } else {
+                self.life = 0
+            }
         }
     }
 
