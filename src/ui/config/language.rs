@@ -1,44 +1,37 @@
 use crossterm::event::{self, Event, KeyCode};
-use tui::{
-    Frame,
-    Terminal,
-    backend::Backend,
-    style::{Style, Color, Modifier},
-    layout::{Layout, Constraint, Alignment},
-    widgets::{Block, Borders, Paragraph}, text::{Spans, Span, Text}
-};
 use std::io;
-use crate::{game::{self, Game}, entities::player::Player, ui::settings};
+use tui::{
+    backend::Backend,
+    layout::{Constraint, Layout},
+    style::{Color, Style, Modifier},
+    layout::Alignment,
+    widgets::{Block, Borders, Paragraph},text::{Spans, Span, Text},
+    Frame, Terminal,
+};
 use locales::t;
 
-fn build_title<'a>(color: Color) -> Text<'a> {
-    let style = Style::default().fg(color);
-
+fn build_title<'a>() -> Text<'a> {
     Text::from(vec![
         Spans(vec![
-            Span::raw(" ___ ___               __       "),
-            Span::styled(" __  __           __ ", style)
+            Span::raw(" _____   _______ _______ _______ "),
         ]),
         Spans(vec![
-            Span::raw("|   |   |.--.--.-----.|__|______"),
-            Span::styled("|  |/  |.-----.--|  |", style)
+            Span::raw("|     |_|   _   |    |  |     __|"),
         ]),
         Spans(vec![
-            Span::raw(" \\     / |  |  |     ||  |______"),
-            Span::styled("|     < |  _  |  _  |", style)
+            Span::raw("|       |       |       |    |  |"),
         ]),
         Spans(vec![
-            Span::raw("  |___|  |_____|__|__||__|      "),
-            Span::styled("|__|\\__||_____|_____|", style)
+            Span::raw("|_______|___|___|__|____|_______|"),
         ]),
     ])
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     let mut list_idx = 0;
     loop {
         let color = match list_idx {
-            0 => Color::Green,
+            0 => Color::Blue,
             1 => Color::Blue,
             2 => Color::Red,
             _ => Color::Blue
@@ -49,7 +42,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
         // input handler \\
         if let Event::Key(key) = event::read()? {
             match key.code {
-                KeyCode::Esc => return Ok(0),
+                KeyCode::Esc => return Ok(()),
                 KeyCode::Up => {
                     if list_idx > 0 {list_idx -= 1};
                 },
@@ -58,9 +51,9 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
                 },
                 KeyCode::Enter => {
                     match list_idx {
-                        0 => new_game(terminal)?,
-                        1 => settings::run(terminal)?,
-                        2 => return Ok(0),
+                        0 => {},
+                        1 => {},
+                        2 => return Ok(()),
                         _ => {}
                     }
                 },
@@ -86,37 +79,26 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
             blocks.push(Block::default().borders(Borders::ALL))
         }
     }
+    
     let lang = current_locale::current_locale().unwrap();
   
-    let para_title = Paragraph::new(build_title(color))
+    let para_title = Paragraph::new(build_title())
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
     frame.render_widget(para_title, vchunks[0]);
-
-    let para_new_game = Paragraph::new(Span::styled(t!("main.opt.new_game",lang), Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)))
+    
+    let para_l1 = Paragraph::new(Span::styled("ENGLISH", Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
         .block(blocks[0].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_new_game, vchunks[1]);
-    
-    let para_settings = Paragraph::new(Span::styled(t!("main.opt.settings",lang), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
+    frame.render_widget(para_l1, vchunks[1]);
+
+    let para_l2 = Paragraph::new(Span::styled("PORTUGUESE", Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
         .block(blocks[1].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_settings, vchunks[2]);
+    frame.render_widget(para_l2, vchunks[2]);
 
-    let para_exit = Paragraph::new(Span::styled(t!("opt.exit",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
+    let para_exit = Paragraph::new(Span::styled(t!("opt.back",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
         .block(blocks[2].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_exit, vchunks[3]);
-}
-
-fn new_game<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()>{
-    let mut game = Game::new();
-    game.update_chunks();
-    let mut x = 0.0;
-    while game.perlin().get_noise(x, 0.0) < 0.0 {
-        x += 1.0
-    }
-    let player = Player::new(x as i64, 0);
-    game::run(terminal, game, player)?;
-    Ok(())
 }

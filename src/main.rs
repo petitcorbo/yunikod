@@ -4,7 +4,7 @@ use tui::{
     Terminal,
 };
 use std::io;
-use game::ui;
+use game::{ui};
 
 fn main() -> Result<(), io::Error> {
     // setup terminal \\

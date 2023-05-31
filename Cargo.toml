@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+current_locale="0.1.1"
+locales="0.1.0"
 tui = "0.19"
 crossterm = "0.25"
 rand = "0.8.3"

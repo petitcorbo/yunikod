@@ -1,0 +1,22 @@
+{
+  "main.opt.new_game": {
+    "en-US": "New Game",
+    "pt": "Novo Jogo"
+ },
+  "main.opt.settings": {
+    "en-US": "Settings",
+    "pt": "Opções"
+  },
+  "settings.opt.language": {
+    "en-US": "Language",
+    "pt": "Idioma"
+  },
+  "opt.exit": {
+    "en-US": "Exit",
+    "pt": "Sair"
+  },
+  "opt.back": {
+    "en-US": "Back",
+    "pt": "Voltar"
+  }
+}
