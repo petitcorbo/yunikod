@@ -1,15 +1,131 @@
 {
+  "game.entity.crawler": {
+    "en-US": "Crawler",
+    "pt": "Crawler"
+  },
+  "game.entity.fire": {
+    "en-US": "Fire",
+    "pt": "Fogo"
+  },
+  "game.entity.golem": {
+    "en-US": "Golem",
+    "pt": "Golem"
+  },
+  "game.entity.onyx_stone": {
+    "en-US": "Onyx Stone",
+    "pt": "Pedra Onyx"
+  },
+  "game.entity.ovis": {
+    "en-US": "Ovis",
+    "pt": "Ovis"
+  },
+  "game.entity.player": {
+    "en-US": "Player",
+    "pt": "Jogador"
+  },
+  "game.entity.player.hand": {
+    "en-US": "Hand",
+    "pt": "Mão"
+  },
+  "game.entity.scorpy": {
+    "en-US": "Scorpy",
+    "pt": "Escorpião"
+  },
+  "game.entity.snake": {
+    "en-US": "Snake",
+    "pt": "Cobra"
+  },
+  "game.entity.swing": {
+    "en-US": "Swing",
+    "pt": "Balanço"
+  },
+  "game.err.crafting.ne": {
+    "en-US": "Not Enough",
+    "pt": "Insuficiente"
+  },
+  "game.items.armor": {
+    "en-US": "Armor",
+    "pt": "Armadura"
+  },
+  "game.items.arrow": {
+    "en-US": "Arrow",
+    "pt": "Flecha"
+  },
+  "game.items.axe": {
+    "en-US": "Axe",
+    "pt": "Machado"
+  },
+  "game.items.boat": {
+    "en-US": "Boat",
+    "pt": "Barco"
+  },
+  "game.items.bow": {
+    "en-US": "Bow",
+    "pt": "Arco"
+  },
+  "game.items.pickaxe": {
+    "en-US": "Pickaxe",
+    "pt": "Picareta"
+  },
+  "game.items.sword": {
+    "en-US": "Sword",
+    "pt": "Espada"
+  },
+  "game.res.dragon_soul": {
+    "en-US": "Dragon Soul",
+    "pt": "Alma do Dragão"
+  },
+  "game.res.grass": {
+    "en-US": "Grass",
+    "pt": "Grama"
+  },
+  "game.res.onyx_heart": {
+    "en-US": "Onyx Heart",
+    "pt": "Coração Onyx"
+  },
+  "game.res.stone": {
+    "en-US": "Stone",
+    "pt": "Pedra"
+  },
+  "game.res.wood": {
+    "en-US": "Wood",
+    "pt": "Madeira"
+  },
+  "game.ui.action": {
+    "en-US": "action",
+    "pt": "ação"
+  },
+  "game.ui.equiped": {
+    "en-US": "[m] equiped:",
+    "pt": "[m] equipado:"
+  },
+  "game.ui.life": {
+    "en-US": "[Life]",
+    "pt": "[Vida]"
+  },
+  "game.ui.using": {
+    "en-US": "[k] using: {}",
+    "pt": "[k] usando: {}"
+  },
+  "game.ui.tab.crafting": {
+    "en-US": "crafting",
+    "pt": "criação"
+  },
+  "game.ui.tab.inventory": {
+    "en-US": "inventory",
+    "pt": "invetário"
+  },
+  "game.ui.tab.map": {
+    "en-US": "map",
+    "pt": "mapa"
+  },
   "main.opt.new_game": {
     "en-US": "New Game",
     "pt": "Novo Jogo"
- },
+  },
   "main.opt.settings": {
     "en-US": "Settings",
     "pt": "Opções"
-  },
-  "settings.opt.language": {
-    "en-US": "Language",
-    "pt": "Idioma"
   },
   "opt.exit": {
     "en-US": "Exit",
@@ -18,5 +134,9 @@
   "opt.back": {
     "en-US": "Back",
     "pt": "Voltar"
+  },
+  "settings.opt.language": {
+    "en-US": "Language",
+    "pt": "Idioma"
   }
 }
