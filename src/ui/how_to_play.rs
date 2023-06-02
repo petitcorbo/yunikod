@@ -82,41 +82,49 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
     frame.render_widget(para_title, vchunks[0]);
 
     let items = [ListItem::new(Spans(vec![Span::raw(t!("htp.keys",lang)),
-                                          Span::raw(":")
+                                          Span::raw(":            "),
+                                          Span::raw("Sprites: ")
                                          ])),
-                 ListItem::new(" "),
-                 ListItem::new(t!("htp.keys.arrows",lang)), 
-                 ListItem::new(t!("htp.keys.inventory",lang)), 
-                 ListItem::new(t!("htp.keys.crafting",lang)),
-                 ListItem::new(t!("htp.keys.map",lang)), 
-                 ListItem::new(t!("htp.keys.action",lang)),
-                 ListItem::new(" "),
-                 ListItem::new("Sprites: "),
-                 ListItem::new(" "),
-                 ListItem::new(Spans(vec![Span::styled(" ",Style::default().bg(Color::Rgb(54, 181, 201))),
+                 ListItem::new("               |"),
+                 ListItem::new(Spans(vec![Span::raw(t!("htp.keys.arrows",lang)),
+                                          Span::raw("  | "),
+                                          Span::styled(" ",Style::default().bg(Color::Rgb(54, 181, 201))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.deepwater",lang))])), 
-                 ListItem::new(" "),
-                 ListItem::new(Spans(vec![Span::styled(" ",Style::default().bg(Color::Rgb(54, 201, 148))),
+                                         Span::raw(t!("htp.sprites.deepwater",lang))
+                                         ])), 
+                 ListItem::new(Spans(vec![Span::raw(t!("htp.keys.inventory",lang)),
+                                          Span::raw("  | "),
+                                          Span::styled(" ",Style::default().bg(Color::Rgb(54, 201, 148))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.water",lang))])), 
-                 ListItem::new(" "),
-                 ListItem::new(Spans(vec![Span::styled(" ",Style::default().bg(Color::Rgb(70, 201, 54))),
+                                         Span::raw(t!("htp.sprites.water",lang))
+                                         ])),  
+                 ListItem::new(Spans(vec![Span::raw(t!("htp.keys.crafting",lang)),
+                                          Span::raw("   | "),
+                                          Span::styled(" ",Style::default().bg(Color::Rgb(70, 201, 54))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.grass",lang))])), 
-                 ListItem::new(" "),
-                 ListItem::new(Spans(vec![Span::styled(" ",Style::default().bg(Color::Rgb(84, 106, 78))),
+                                         Span::raw(t!("htp.sprites.grass",lang))
+                                         ])), 
+                 ListItem::new(Spans(vec![Span::raw(t!("htp.keys.map",lang)),
+                                          Span::raw("        | "),
+                                          Span::styled(" ",Style::default().bg(Color::Rgb(84, 106, 78))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.stone",lang))])), 
+                                         Span::raw(t!("htp.sprites.stone",lang))
+                                         ])), 
+                 ListItem::new(Spans(vec![Span::raw(t!("htp.keys.action",lang)),
+                                        Span::raw(" | "),
+                                        Span::raw("▲"),
+                                         Span::raw(" = "),
+                                         Span::raw(t!("htp.sprites.player",lang))
+                                         ])), 
                 ];
     let par = List::new(items)
     .block(Block::default().title(t!("htp.title",lang)).borders(Borders::ALL))
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
     .highlight_symbol(">>");
-    frame.render_widget(par,Rect::new(frame.size().width/2-48, 7, 95, 20));
+    frame.render_widget(par,Rect::new(frame.size().width/2-20, 7, 40, 9));
     let para_exit = Paragraph::new(Span::styled(t!("opt.back",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
         .block(blocks[0].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_exit, Rect::new(frame.size().width/2-20, 27, 40, 3));
+    frame.render_widget(para_exit, Rect::new(frame.size().width/2-20, 16, 40, 3));
 }

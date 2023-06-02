@@ -151,6 +151,10 @@
     "en-US": "Deep Water",
     "pt": "Águas profundas"
   },
+  "htp.sprites.player":{
+    "en-US": "Player",
+    "pt": "Jogador"
+  },
   "htp.sprites.stone":{
     "en-US": "Stone",
     "pt": "Pedra"
