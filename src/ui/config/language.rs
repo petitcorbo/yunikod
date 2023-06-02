@@ -80,8 +80,10 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         }
     }
     
-    let lang = current_locale::current_locale().unwrap();
-  
+    let mut lang = current_locale::current_locale().unwrap();
+    if lang=="C"{
+        lang = "en-US".to_string();
+    }
     let para_title = Paragraph::new(build_title())
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
