@@ -80,9 +80,18 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         }
     }
     
+    let file = std::fs::File::open("src/ui/config/locales/langs.json")
+    .expect("File should open read only");
+    let json: serde_json::Value = serde_json::from_reader(file)
+    .expect("File should be a valid JSON");
+    let j_key = json.get("settings.language.short").expect("Key not found");
+    let ob = j_key.as_object().unwrap();
     let mut lang = current_locale::current_locale().unwrap();
-    if lang=="C"{
-        lang = "en-US".to_string();
+    for i in 0..ob.len(){
+      let ob_cmp = ob.get(&i.to_string()).unwrap().as_str().unwrap();
+      if !(lang==ob_cmp.to_string()){
+        lang= "en-US".to_string();
+      }
     }
     let para_title = Paragraph::new(build_title())
         .block(Block::default().borders(Borders::ALL))

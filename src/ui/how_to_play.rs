@@ -82,47 +82,76 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
     frame.render_widget(para_title, vchunks[0]);
 
     let items = [ListItem::new(Spans(vec![Span::raw(t!("htp.keys",lang)),
-                                          Span::raw(":            "),
-                                          Span::raw("Sprites: ")
+                                          Span::raw(":          | "),
+                                          Span::raw("World Sprites: "),
+                                          Span::raw("| "),
+                                          Span::raw("Resources: "),
+                                          Span::raw("    | "),
+                                          Span::raw("Ores: "),
                                          ])),
-                 ListItem::new("               |"),
+                 ListItem::new("               |                |                |"),
                  ListItem::new(Spans(vec![Span::raw(t!("htp.keys.arrows",lang)),
                                           Span::raw("  | "),
                                           Span::styled(" ",Style::default().bg(Color::Rgb(54, 181, 201))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.deepwater",lang))
+                                         Span::raw(t!("htp.sprites.deepwater",lang)),
+                                          Span::raw(" |"),
+                                          Span::raw(" ⇞ = "),
+                                          Span::raw(t!("htp.res.tree",lang)),
+                                          Span::raw("       |"),
+                                          Span::raw(" ⣳ = "),
+                                          Span::raw(t!("htp.ores.coal",lang)),
                                          ])), 
                  ListItem::new(Spans(vec![Span::raw(t!("htp.keys.inventory",lang)),
                                           Span::raw("  | "),
                                           Span::styled(" ",Style::default().bg(Color::Rgb(54, 201, 148))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.water",lang))
+                                         Span::raw(t!("htp.sprites.water",lang)),
+                                          Span::raw("      |"),
+                                          Span::raw(" ⠣ = "),
+                                          Span::raw(t!("htp.res.stones",lang)),
+                                          Span::raw("     |"),
+                                          Span::raw(" ⡵ = "),
+                                          Span::raw(t!("htp.ores.iron",lang)),
                                          ])),  
                  ListItem::new(Spans(vec![Span::raw(t!("htp.keys.crafting",lang)),
                                           Span::raw("   | "),
                                           Span::styled(" ",Style::default().bg(Color::Rgb(70, 201, 54))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.grass",lang))
+                                         Span::raw(t!("htp.sprites.grass",lang)),
+                                          Span::raw("      |"),
+                                          Span::raw(" ɻ = "),
+                                          Span::raw(t!("htp.res.sticks",lang)),
+                                          Span::raw("     |"),
+                                          Span::raw(" ⡝ = "),
+                                          Span::raw(t!("htp.ores.gold",lang)),
                                          ])), 
                  ListItem::new(Spans(vec![Span::raw(t!("htp.keys.map",lang)),
                                           Span::raw("        | "),
                                           Span::styled(" ",Style::default().bg(Color::Rgb(84, 106, 78))),
                                          Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.stone",lang))
+                                         Span::raw(t!("htp.sprites.stone",lang)),
+                                        Span::raw("      |"),
+                                        Span::raw(" ⣿ = "),
+                                        Span::raw(t!("htp.res.rock",lang)),
+                                        Span::raw("       |"),
                                          ])), 
                  ListItem::new(Spans(vec![Span::raw(t!("htp.keys.action",lang)),
                                         Span::raw(" | "),
                                         Span::raw("▲"),
-                                         Span::raw(" = "),
-                                         Span::raw(t!("htp.sprites.player",lang))
+                                        Span::raw(" = "),
+                                        Span::raw(t!("htp.sprites.player",lang)),
+                                        Span::raw("     |"),
+                                        Span::raw(" ; = "),
+                                        Span::raw(t!("htp.res.grasstuft",lang)),
+                                        Span::raw(" |"),
+                                          
                                          ])), 
                 ];
     let par = List::new(items)
     .block(Block::default().title(t!("htp.title",lang)).borders(Borders::ALL))
-    .style(Style::default().fg(Color::White))
-    .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-    .highlight_symbol(">>");
-    frame.render_widget(par,Rect::new(frame.size().width/2-20, 7, 40, 9));
+    .style(Style::default().fg(Color::White));
+    frame.render_widget(par,Rect::new(frame.size().width/2-31, 7, 62, 9));
     let para_exit = Paragraph::new(Span::styled(t!("opt.back",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
         .block(blocks[0].clone())
         .alignment(Alignment::Center);

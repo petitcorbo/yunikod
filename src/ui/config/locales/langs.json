@@ -1,191 +1,223 @@
 {
   "game.entity.crawler": {
     "en-US": "Crawler",
-    "pt": "Crawler"
+    "pt-BR": "Crawler"
   },
   "game.entity.fire": {
     "en-US": "Fire",
-    "pt": "Fogo"
+    "pt-BR": "Fogo"
   },
   "game.entity.golem": {
     "en-US": "Golem",
-    "pt": "Golem"
+    "pt-BR": "Golem"
   },
   "game.entity.onyx_stone": {
     "en-US": "Onyx Stone",
-    "pt": "Pedra Onyx"
+    "pt-BR": "Pedra Onyx"
   },
   "game.entity.ovis": {
     "en-US": "Ovis",
-    "pt": "Ovis"
+    "pt-BR": "Ovis"
   },
   "game.entity.player": {
     "en-US": "Player",
-    "pt": "Jogador"
+    "pt-BR": "Jogador"
   },
   "game.entity.player.hand": {
     "en-US": "Hand",
-    "pt": "Mão"
+    "pt-BR": "Mão"
   },
   "game.entity.scorpy": {
     "en-US": "Scorpy",
-    "pt": "Escorpião"
+    "pt-BR": "Escorpião"
   },
   "game.entity.snake": {
     "en-US": "Snake",
-    "pt": "Cobra"
+    "pt-BR": "Cobra"
   },
   "game.entity.swing": {
     "en-US": "Swing",
-    "pt": "Balanço"
+    "pt-BR": "Balanço"
   },
   "game.err.crafting.ne": {
     "en-US": "Not Enough",
-    "pt": "Insuficiente"
+    "pt-BR": "Insuficiente"
   },
   "game.items.armor": {
     "en-US": "Armor",
-    "pt": "Armadura"
+    "pt-BR": "Armadura"
   },
   "game.items.arrow": {
     "en-US": "Arrow",
-    "pt": "Flecha"
+    "pt-BR": "Flecha"
   },
   "game.items.axe": {
     "en-US": "Axe",
-    "pt": "Machado"
+    "pt-BR": "Machado"
   },
   "game.items.boat": {
     "en-US": "Boat",
-    "pt": "Barco"
+    "pt-BR": "Barco"
   },
   "game.items.bow": {
     "en-US": "Bow",
-    "pt": "Arco"
+    "pt-BR": "Arco"
   },
   "game.items.pickaxe": {
     "en-US": "Pickaxe",
-    "pt": "Picareta"
+    "pt-BR": "Picareta"
   },
   "game.items.sword": {
     "en-US": "Sword",
-    "pt": "Espada"
+    "pt-BR": "Espada"
   },
   "game.res.dragon_soul": {
     "en-US": "Dragon Soul",
-    "pt": "Alma do Dragão"
+    "pt-BR": "Alma do Dragão"
   },
   "game.res.grass": {
     "en-US": "Grass",
-    "pt": "Grama"
+    "pt-BR": "Grama"
   },
   "game.res.onyx_heart": {
     "en-US": "Onyx Heart",
-    "pt": "Coração Onyx"
+    "pt-BR": "Coração Onyx"
   },
   "game.res.stone": {
     "en-US": "Stone",
-    "pt": "Pedra"
+    "pt-BR": "Pedra"
   },
   "game.res.wood": {
     "en-US": "Wood",
-    "pt": "Madeira"
+    "pt-BR": "Madeira"
   },
   "game.ui.action": {
     "en-US": "action",
-    "pt": "ação"
+    "pt-BR": "ação"
   },
   "game.ui.equiped": {
     "en-US": "[m] equiped:",
-    "pt": "[m] equipado:"
+    "pt-BR": "[m] equipado:"
   },
   "game.ui.life": {
     "en-US": "[Life]",
-    "pt": "[Vida]"
+    "pt-BR": "[Vida]"
   },
   "game.ui.using": {
     "en-US": "[k] using: {}",
-    "pt": "[k] usando: {}"
+    "pt-BR": "[k] usando: {}"
   },
   "game.ui.tab.crafting": {
     "en-US": "crafting",
-    "pt": "criação"
+    "pt-BR": "criação"
   },
   "game.ui.tab.inventory": {
     "en-US": "inventory",
-    "pt": "invetário"
+    "pt-BR": "invetário"
   },
   "game.ui.tab.map": {
     "en-US": "map",
-    "pt": "mapa"
+    "pt-BR": "mapa"
   },
   "htp.keys":{
     "en-US": "Keys",
-    "pt": "Teclas"
+    "pt-BR": "Teclas"
   },
   "htp.keys.action":{
     "en-US": "SPACE = Action",
-    "pt": "ESPAÇO = Ação"
+    "pt-BR": "ESPAÇO = Ação"
   },
   "htp.keys.arrows":{
     "en-US": "ARROWS = Move",
-    "pt": "SETAS = Movimentar"
+    "pt-BR": "SETAS = Movimentação"
   },
   "htp.keys.crafting":{
     "en-US": "C = Crafting",
-    "pt": "C = Criação"
+    "pt-BR": "C = Criação"
   },
   "htp.keys.inventory":{
     "en-US": "I = Inventory",
-    "pt": "I = Inventário"
+    "pt-BR": "I = Inventário"
   },
   "htp.keys.map":{
     "en-US": "M = Map",
-    "pt": "M = Mapa"
+    "pt-BR": "M = Mapa"
+  },
+  "htp.ores.coal":{
+    "en-US": "Coal",
+    "pt-BR": "Carvão"
+  },
+  "htp.ores.iron":{
+    "en-US": "Iron",
+    "pt-BR": "Ferro"
+  },
+  "htp.ores.gold":{
+    "en-US": "Gold",
+    "pt-BR": "Ouro"
+  },
+  "htp.res.grasstuft":{
+    "en-US": "Grass Tuft",
+    "pt-BR": "Tufo de Grama"
+  },
+  "htp.res.rock":{
+    "en-US": "Rock",
+    "pt-BR": "Rocha"
+  },
+  "htp.res.sticks":{
+    "en-US": "Sticks",
+    "pt-BR": "Gravetos"
+  },
+  "htp.res.stones":{
+    "en-US": "Stones",
+    "pt-BR": "Pedras"
+  },
+  "htp.res.tree":{
+    "en-US": "Tree",
+    "pt-BR": "Árvore"
   },
   "htp.sprites.grass":{
     "en-US": "Grass",
-    "pt": "Grama"
+    "pt-BR": "Grama"
   },
   "htp.sprites.deepwater":{
     "en-US": "Deep Water",
-    "pt": "Águas profundas"
+    "pt-BR": "Águas profundas"
   },
   "htp.sprites.player":{
     "en-US": "Player",
-    "pt": "Jogador"
+    "pt-BR": "Jogador"
   },
   "htp.sprites.stone":{
     "en-US": "Stone",
-    "pt": "Pedra"
+    "pt-BR": "Pedra"
   },
   "htp.sprites.water":{
     "en-US": "Water",
-    "pt": "Água"
+    "pt-BR": "Água"
   },
   "htp.title":{
     "en-US": "HOW TO PLAY",
-    "pt": "COMO JOGAR"
+    "pt-BR": "COMO JOGAR"
   },
   "main.opt.htp":{
     "en-US": "How to Play",
-    "pt": "Como Jogar"
+    "pt-BR": "Como Jogar"
   },
   "main.opt.new_game": {
     "en-US": "New Game",
-    "pt": "Novo Jogo"
+    "pt-BR": "Novo Jogo"
   },
   "main.opt.settings": {
     "en-US": "Settings",
-    "pt": "Opções"
+    "pt-BR": "Opções"
   },
   "opt.exit": {
     "en-US": "Exit",
-    "pt": "Sair"
+    "pt-BR": "Sair"
   },
   "opt.back": {
     "en-US": "Back",
-    "pt": "Voltar"
+    "pt-BR": "Voltar"
   },
   "settings.language.full": {
     "0": "English",
@@ -193,10 +225,10 @@
   },
   "settings.language.short": {
     "0": "en-US",
-    "1": "pt"
+    "1": "pt-BR"
   },
   "settings.opt.language": {
     "en-US": "Language",
-    "pt": "Idioma"
+    "pt-BR": "Idioma"
   }
 }
