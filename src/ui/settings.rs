@@ -34,7 +34,7 @@ fn build_title<'a>(color: Color) -> Text<'a> {
     ])
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Result<()> {
     let mut list_idx = 0;
     loop {
         let color = match list_idx {
@@ -43,7 +43,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
             _ => Color::Blue
         };
 
-        terminal.draw(|frame| draw(frame, list_idx, color))?;
+        terminal.draw(|frame| draw(frame, list_idx, color, lang.to_string()))?;
 
         if let Event::Key(key) = event::read()? {
             match key.code {
@@ -56,7 +56,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                 },
                 KeyCode::Enter => {
                     match list_idx {
-                        0 => config::language::run(terminal)?,
+                        0 => {terminal.clear().expect("Error on change SETTINGS->LANGUAGE"); config::language::run(terminal, lang)}?,
                         1 => return Ok(()),
                         _ => {}
                     }
@@ -68,7 +68,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -82,19 +82,6 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         } else {
             blocks.push(Block::default().borders(Borders::ALL))
         }
-    }
-    let file = std::fs::File::open("src/ui/config/locales/langs.json")
-    .expect("file should open read only");
-    let json: serde_json::Value = serde_json::from_reader(file)
-    .expect("file should be proper JSON");
-    let j_key = json.get("settings.language.short").expect("Key not found");
-    let ob = j_key.as_object().unwrap();
-    let mut lang = current_locale::current_locale().unwrap();
-    for i in 0..ob.len(){
-      let ob_cmp = ob.get(&i.to_string()).unwrap().as_str().unwrap();
-      if !(lang==ob_cmp.to_string()){
-        lang= "en-US".to_string();
-      }
     }
     let para_title = Paragraph::new(build_title(color))
         .block(Block::default().borders(Borders::ALL))

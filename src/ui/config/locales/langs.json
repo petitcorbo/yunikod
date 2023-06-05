@@ -71,6 +71,14 @@
     "en-US": "Sword",
     "pt-BR": "Espada"
   },
+  "game.msg.took": {
+    "en-US": "Took",
+    "pt-BR": "Levou"
+  },
+  "game.msg.damage": {
+    "en-US": "Damage",
+    "pt-BR": "Dano"
+  },
   "game.res.dragon_soul": {
     "en-US": "Dragon Soul",
     "pt-BR": "Alma do Dragão"
@@ -103,9 +111,21 @@
     "en-US": "[Life]",
     "pt-BR": "[Vida]"
   },
+  "game.ui.ldchunks": {
+    "en-US": "loaded chunks:",
+    "pt-BR": "chunks carregadas:"
+  },
+  "game.ui.unchunks": {
+    "en-US": "unused chunks:",
+    "pt-BR": "chunks inutilizadas:"
+  },
   "game.ui.using": {
-    "en-US": "[k] using: {}",
-    "pt-BR": "[k] usando: {}"
+    "en-US": "[k] using:",
+    "pt-BR": "[k] usando:"
+  },
+  "game.ui.tab": {
+    "en-US": "[Tab]",
+    "pt-BR": "Aba"
   },
   "game.ui.tab.crafting": {
     "en-US": "crafting",
@@ -113,15 +133,19 @@
   },
   "game.ui.tab.inventory": {
     "en-US": "inventory",
-    "pt-BR": "invetário"
+    "pt-BR": "inventário"
   },
   "game.ui.tab.map": {
     "en-US": "map",
     "pt-BR": "mapa"
   },
-  "htp.keys":{
-    "en-US": "Keys",
-    "pt-BR": "Teclas"
+  "game.ui.tab.menu": {
+    "en-US": "menu",
+    "pt-BR": "menu"
+  },
+  "htp.keys.header":{
+    "en-US": "Keys:",
+    "pt-BR": "Teclas:"
   },
   "htp.keys.action":{
     "en-US": "SPACE = Action",
@@ -143,6 +167,10 @@
     "en-US": "M = Map",
     "pt-BR": "M = Mapa"
   },
+  "htp.ores.header":{
+    "en-US": "Ores:",
+    "pt-BR": "Minérios:"
+  },
   "htp.ores.coal":{
     "en-US": "Coal",
     "pt-BR": "Carvão"
@@ -154,6 +182,10 @@
   "htp.ores.gold":{
     "en-US": "Gold",
     "pt-BR": "Ouro"
+  },
+  "htp.res.header":{
+    "en-US": "Resources:",
+    "pt-BR": "Recursos:"
   },
   "htp.res.grasstuft":{
     "en-US": "Grass Tuft",
@@ -174,6 +206,10 @@
   "htp.res.tree":{
     "en-US": "Tree",
     "pt-BR": "Árvore"
+  },
+  "htp.sprites.header":{
+    "en-US": "World Sprites:",
+    "pt-BR": "Sprites Globais:"
   },
   "htp.sprites.grass":{
     "en-US": "Grass",

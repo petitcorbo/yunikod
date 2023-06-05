@@ -5,4 +5,3 @@ pub mod game;
 pub mod blocks;
 pub mod chunk;
 pub mod ui;
-pub mod lang;

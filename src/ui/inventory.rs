@@ -12,12 +12,13 @@ use crate::{
     entities::player::Player,
     game::Game
 };
+use locales::t;
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player) -> io::Result<u8> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player, lang: &mut String) -> io::Result<u8> {
     let mut list_idx = 0;
     loop {
         // draw \\
-        terminal.draw(|frame| draw(frame, &game, &mut player, list_idx))?;
+        terminal.draw(|frame| draw(frame, &game, &mut player, list_idx, lang.to_string()))?;
 
         // input handler \\
         if let Event::Key(key) = event::read()? {
@@ -38,7 +39,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player, list_idx: usize) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player, list_idx: usize, lang: String) {
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Length(3), Constraint::Min(3), Constraint::Length(3)])
         .split(frame.size());
@@ -54,25 +55,25 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player,
         .split(vchunks[1]);
 
     let tabs = vec![
-        Span::styled("inventory", Style::default().fg(Color::Green)),
-        Span::raw(" | crafting | map | menu"),
+        Span::styled(t!("game.ui.tab.inventory",lang), Style::default().fg(Color::Green)),
+        Span::raw(format!(" | {} | {} | {}",t!("game.ui.tab.crafting",lang),t!("game.ui.tab.map",lang),t!("game.ui.tab.menu",lang))),
     ];
     let para_tabs = Paragraph::new(Spans::from(tabs))
-        .block(Block::default().title("[Tab]").borders(Borders::ALL));
+        .block(Block::default().title(t!("game.ui.tab",lang)).borders(Borders::ALL));
     frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
-        .block(Block::default().title("[Life]").borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(gauge_lifebar, hchunks0[1]);
 
     let idx = player.using();
-    let para_using = Paragraph::new(format!("[k] using: {}", player.inventory().get(idx).name()))
+    let para_using = Paragraph::new(format!("{} {}",t!("game.ui.using",lang), player.inventory().get(idx).name()))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_using, hchunks1[0]);
 
-    let para_equiped = Paragraph::new(format!("[m] equiped:"))
+    let para_equiped = Paragraph::new(format!("{}",t!("game.ui.equiped",lang)))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_equiped, hchunks1[1]);
 

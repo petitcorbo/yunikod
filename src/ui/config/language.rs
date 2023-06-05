@@ -9,6 +9,7 @@ use tui::{
     Frame, Terminal,
 };
 use locales::t;
+use crate::ui::main_menu;
 
 fn build_title<'a>() -> Text<'a> {
     Text::from(vec![
@@ -27,7 +28,7 @@ fn build_title<'a>() -> Text<'a> {
     ])
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Result<()> {
     let mut list_idx = 0;
     loop {
         let color = match list_idx {
@@ -37,7 +38,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
             _ => Color::Blue
         };
         // draw \\
-        terminal.draw(|frame| draw(frame, list_idx, color))?;
+        terminal.draw(|frame| draw(frame, list_idx, color, lang.to_string()))?;
 
         // input handler \\
         if let Event::Key(key) = event::read()? {
@@ -51,11 +52,11 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                 },
                 KeyCode::Enter => {
                     match list_idx {
-                        0 => {},
-                        1 => {},
+                        0 => {terminal.clear().expect("Error on change LANGUAGE->MENU"); main_menu::run(terminal, &mut "en-US".to_string()).expect("Error on change language");},
+                        1 => {terminal.clear().expect("Error on change LANGUAGE->MENU"); main_menu::run(terminal, &mut "pt-BR".to_string()).expect("Error on change language");},
                         2 => return Ok(()),
                         _ => {}
-                    }
+                    };
                 },
                 _ => {}
             }
@@ -64,7 +65,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -80,19 +81,6 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         }
     }
     
-    let file = std::fs::File::open("src/ui/config/locales/langs.json")
-    .expect("File should open read only");
-    let json: serde_json::Value = serde_json::from_reader(file)
-    .expect("File should be a valid JSON");
-    let j_key = json.get("settings.language.short").expect("Key not found");
-    let ob = j_key.as_object().unwrap();
-    let mut lang = current_locale::current_locale().unwrap();
-    for i in 0..ob.len(){
-      let ob_cmp = ob.get(&i.to_string()).unwrap().as_str().unwrap();
-      if !(lang==ob_cmp.to_string()){
-        lang= "en-US".to_string();
-      }
-    }
     let para_title = Paragraph::new(build_title())
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
@@ -103,7 +91,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         .alignment(Alignment::Center);
     frame.render_widget(para_l1, vchunks[1]);
 
-    let para_l2 = Paragraph::new(Span::styled("PORTUGUESE", Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
+    let para_l2 = Paragraph::new(Span::styled("PORTUGUÊS", Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
         .block(blocks[1].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_l2, vchunks[2]);

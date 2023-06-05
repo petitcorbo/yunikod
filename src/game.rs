@@ -18,6 +18,7 @@ use crate::{entities::{
     EntityKind,
     player::Player, Direction, Action
 }, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting, map}};
+use locales::t;
 
 const TITLE: &str = "Yuni-Kod";
 
@@ -85,7 +86,7 @@ impl<'a> Game {
         &self.perlin
     }
 
-    pub fn on_tick(&mut self, player: &mut Player) {
+    pub fn on_tick(&mut self, player: &mut Player, lang: String) {
         // update message
         if self.message_timer > 1 {
             self.message_timer -= 1;
@@ -131,7 +132,7 @@ impl<'a> Game {
                 Action::Attack(id, damage) => {
                     let target = &mut self.entities[id];
                     target.hurt(damage);
-                    self.set_message(format!("{} took {} damage", id, damage));
+                    self.set_message(format!("{} {} {} {}", id,t!("game.msg.took", lang), damage,t!("game.msg.damage", lang)));
                 },
                 Action::Nothing => {},
             };
@@ -288,7 +289,7 @@ impl<'a> Game {
     }
 }
 
-fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, c: char) {
+fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, c: char, lang: &mut String) {
     match c {
         ' ' => {
             if let Some(entity) = player.on_space(game) {
@@ -296,25 +297,25 @@ fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut 
             }
         }
         'q' => game.should_quit = true,
-        'i' => {launch_tab(terminal, game, player, 1);},
-        'c' => {launch_tab(terminal, game, player, 2);},
-        'm' => {launch_tab(terminal, game, player, 3);},
+        'i' => {launch_tab(terminal, game, player, 1, lang);},
+        'c' => {launch_tab(terminal, game, player, 2, lang);},
+        'm' => {launch_tab(terminal, game, player, 3, lang);},
         _ => {}
     }
 }
 
-fn launch_tab<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, mut n: u8) {
+fn launch_tab<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, mut n: u8, lang: &mut String) {
     while n != 0 {
         n = match n {
-            1 => inventory::run(terminal, game, player).unwrap(),
-            2 => crafting::run(terminal, game, player).unwrap(),
-            3 => map::run(terminal, game, player).unwrap(),
+            1 => inventory::run(terminal, game, player, lang).unwrap(),
+            2 => crafting::run(terminal, game, player, lang).unwrap(),
+            3 => map::run(terminal, game, player,lang).unwrap(),
             _ => 0
         }
     }
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: Player) -> io::Result<()> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: Player, lang: &mut String) -> io::Result<()> {
     let tick_rate = Duration::from_millis(50);
     let mut last_tick = Instant::now();
     loop {
@@ -328,7 +329,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
-                    KeyCode::Char(c) => on_key(terminal, &mut game, &mut player, c),
+                    KeyCode::Char(c) => on_key(terminal, &mut game, &mut player, c,lang),
                     KeyCode::Esc => game.on_escape(),
                     KeyCode::Up => player.on_arrow(&key, Direction::Up),
                     KeyCode::Down => player.on_arrow(&key, Direction::Down),
@@ -343,11 +344,11 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
         if last_tick.elapsed() >= tick_rate {
             player.on_tick(&mut game);
             player.moving(false);
-            game.on_tick(&mut player);
+            game.on_tick(&mut player, lang.to_string());
             game.update_chunks();
             last_tick = Instant::now();
         }
-        terminal.draw(|frame| draw(frame, &mut game, &mut player))?;
+        terminal.draw(|frame| draw(frame, &mut game, &mut player, lang.to_string()))?;
 
         if game.should_quit {
             return Ok(());
@@ -355,7 +356,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Player) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Player,lang: String) {
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(2), Constraint::Length(3)])
         .split(frame.size());
@@ -367,13 +368,13 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
 
     // controls information \\
     //let text = format!("x:{} y:{} p:{}", player.x(), player.y(), game.perlin.get_noise(player.x() as f64, player.y() as f64));
-    let text = format!("nbr of loaded chunks:{} | nbr of unused chunks:{} | x:{} | y:{}", game.loaded_chunks.len(), game.unused_chunks.len(), player.x(), player.y());
+    let text = format!("{} {} | {} {} | x:{} | y:{}",t!("game.ui.ldchunks",lang).as_str(), game.loaded_chunks.len(),t!("game.ui.unchunks",lang).as_str(),game.unused_chunks.len(), player.x(), player.y());
     let paragraph = Paragraph::new(text)
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks0[0]);
 
     let lifebar = Gauge::default()
-        .block(Block::default().title("[Life]").borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(lifebar, hchunks0[1]);

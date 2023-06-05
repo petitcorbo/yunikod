@@ -34,7 +34,7 @@ fn build_title<'a>(color: Color) -> Text<'a> {
     ])
 }
 
-pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
+pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Result<u8> {
     let mut list_idx = 0;
     loop {
         let color = match list_idx {
@@ -45,7 +45,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
             _ => Color::Blue
         };
         // draw \\
-        terminal.draw(|frame| draw(frame, list_idx, color))?;
+        terminal.draw(|frame| draw(frame, list_idx, color, lang.to_string()))?;
 
         // input handler \\
         if let Event::Key(key) = event::read()? {
@@ -55,14 +55,14 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
                     if list_idx > 0 {list_idx -= 1};
                 },
                 KeyCode::Down => {
-                    if list_idx < 4 {list_idx += 1};
+                    if list_idx < 3 {list_idx += 1};
                 },
                 KeyCode::Enter => {
                     match list_idx {
-                        0 => new_game(terminal)?,
-                        1 => how_to_play::run(terminal)?,
-                        2 => settings::run(terminal)?,
-                        3 => return Ok(0),
+                        0 => {terminal.clear().expect("Error on change MENU->NEW GAME"); new_game(terminal, lang)}?,
+                        1 => {terminal.clear().expect("Error on change MENU->HTP"); how_to_play::run(terminal, lang)}?,
+                        2 => {terminal.clear().expect("Error on change MENU->SETTINGS"); settings::run(terminal, lang)}?,
+                        3 => std::process::exit(0),
                         _ => {}
                     }
                 },
@@ -73,7 +73,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<u8> {
     }
 }
 
-fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
+fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3),Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -89,19 +89,6 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
         }
     }
     
-    let file = std::fs::File::open("src/ui/config/locales/langs.json")
-    .expect("file should open read only");
-    let json: serde_json::Value = serde_json::from_reader(file)
-    .expect("file should be proper JSON");
-    let j_key = json.get("settings.language.short").expect("Key not found");
-    let ob = j_key.as_object().unwrap();
-    let mut lang = current_locale::current_locale().unwrap();
-    for i in 0..ob.len(){
-      let ob_cmp = ob.get(&i.to_string()).unwrap().as_str().unwrap();
-      if !(lang==ob_cmp.to_string()){
-        lang= "en-US".to_string();
-      }
-    }
     let para_title = Paragraph::new(build_title(color))
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
@@ -128,7 +115,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color) {
     frame.render_widget(para_exit, vchunks[4]); 
 }
 
-fn new_game<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()>{
+fn new_game<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Result<()>{
     let mut game = Game::new();
     game.update_chunks();
     let mut x = 0.0;
@@ -136,6 +123,6 @@ fn new_game<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()>{
         x += 1.0
     }
     let player = Player::new(x as i64, 0);
-    game::run(terminal, game, player)?;
+    game::run(terminal, game, player,lang)?;
     Ok(())
 }
