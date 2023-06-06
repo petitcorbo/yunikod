@@ -17,3 +17,9 @@ git clone git@github.com:petitcorbo/yuni-kod.git
 cd yuni-kod
 cargo run
 ```
+# How to play
+[Arrows] move the player
+[i] open inventory
+[m] open map
+[c] open crafting menu
+[Space] use item
