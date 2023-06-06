@@ -83,7 +83,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⣳ = "),
-              Span::raw(t!("htp.ores.coal",lang)),
+              Span::raw(t!("game.ores.coal",lang)),
           ])),
       ]),
       Row::new(vec![
@@ -99,7 +99,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⡵ = "),
-              Span::raw(t!("htp.ores.iron",lang)),
+              Span::raw(t!("game.ores.iron",lang)),
           ])),
       ]),
       Row::new(vec![
@@ -115,7 +115,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⡝ = "),
-              Span::raw(t!("htp.ores.gold",lang)),
+              Span::raw(t!("game.ores.gold",lang)),
           ])),
       ]),
       Row::new(vec![

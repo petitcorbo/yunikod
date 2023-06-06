@@ -1,5 +1,6 @@
 use super::Item;
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Hand {
     quantity: i8,
@@ -22,8 +23,8 @@ impl Item for Hand {
         Span::styled("h", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "hand"
+    fn name(lang: String) -> String {
+      t!("game.entity.player.hand",lang)
     }
 
     fn damage(&self) -> u8 {

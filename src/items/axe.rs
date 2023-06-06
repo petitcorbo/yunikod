@@ -2,6 +2,7 @@ use tui::{text::Span, style::{Style, Color}};
 use crate::entities::{EntityKind, swing::Swing};
 
 use super::Item;
+use locales::t;
 
 pub struct Axe {
     quantity: i8,
@@ -24,8 +25,8 @@ impl Item for Axe {
         Span::styled("P", Style::default().fg(Color::White))
     }
 
-    fn name<'a>() -> &'a str {
-        "axe"
+    fn name(lang: String) -> String {
+        t!("game.items.axe",lang)
     }
 
     fn damage(&self) -> u8 {

@@ -6,6 +6,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{EntityKind, player::Player, Action};
+use locales::t;
 
 pub struct Fire {
     x: i64,
@@ -41,9 +42,9 @@ impl<'a> Fire {
 }
 
 impl<'a> Entity<'a> for Fire {
-    fn name<'b>(&self) -> &'b str {
-        "fire"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.fire", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         let color = match self.life {

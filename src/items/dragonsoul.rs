@@ -6,6 +6,7 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct DragonSoul {
     quantity: i8
@@ -21,8 +22,8 @@ impl Item for DragonSoul {
         Span::styled("@", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "dragon soul"
+    fn name(lang: String) -> String {
+        t!("game.res.dragon_soul",lang)
     }
 
     fn damage(&self) -> u8 {

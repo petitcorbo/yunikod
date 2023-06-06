@@ -1,5 +1,6 @@
 use super::Item;
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Gold {
     quantity: i8,
@@ -22,8 +23,8 @@ impl Item for Gold {
         Span::styled(" ", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "axe"
+    fn name(lang: String) -> String {
+        t!("game.ores.gold",lang)
     }
 
     fn damage(&self) -> u8 {

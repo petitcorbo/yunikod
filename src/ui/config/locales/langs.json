@@ -67,17 +67,49 @@
     "en-US": "Pickaxe",
     "pt-BR": "Picareta"
   },
+  "game.items.stick":{
+    "en-US": "Stick",
+    "pt-BR": "Graveto"
+  },
   "game.items.sword": {
     "en-US": "Sword",
     "pt-BR": "Espada"
+  },
+  "game.msg.damage": {
+    "en-US": "Damage",
+    "pt-BR": "Dano"
   },
   "game.msg.took": {
     "en-US": "Took",
     "pt-BR": "Levou"
   },
-  "game.msg.damage": {
-    "en-US": "Damage",
-    "pt-BR": "Dano"
+  "game.msg.player.collected": {
+    "en-US": "collected",
+    "pt-BR": "coletou"
+  },
+  "game.msg.player.dealt": {
+    "en-US": "dealt",
+    "pt-BR": "causou"
+  },
+  "game.msg.player.to": {
+    "en-US": "to",
+    "pt-BR": "para"
+  },
+  "game.msg.player.youcant": {
+    "en-US": "you can't do that",
+    "pt-BR": "você não pode fazer isso"
+  },
+  "game.ores.coal":{
+    "en-US": "Coal",
+    "pt-BR": "Carvão"
+  },
+  "game.ores.iron":{
+    "en-US": "Iron",
+    "pt-BR": "Ferro"
+  },
+  "game.ores.gold":{
+    "en-US": "Gold",
+    "pt-BR": "Ouro"
   },
   "game.res.dragon_soul": {
     "en-US": "Dragon Soul",
@@ -171,18 +203,6 @@
     "en-US": "Ores:",
     "pt-BR": "Minérios:"
   },
-  "htp.ores.coal":{
-    "en-US": "Coal",
-    "pt-BR": "Carvão"
-  },
-  "htp.ores.iron":{
-    "en-US": "Iron",
-    "pt-BR": "Ferro"
-  },
-  "htp.ores.gold":{
-    "en-US": "Gold",
-    "pt-BR": "Ouro"
-  },
   "htp.res.header":{
     "en-US": "Resources:",
     "pt-BR": "Recursos:"
@@ -238,6 +258,10 @@
   "main.opt.htp":{
     "en-US": "How to Play",
     "pt-BR": "Como Jogar"
+  },
+  "main.opt.main_menu": {
+    "en-US": "Main Menu",
+    "pt-BR": "Menu Principal"
   },
   "main.opt.new_game": {
     "en-US": "New Game",

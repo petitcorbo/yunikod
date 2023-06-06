@@ -1,5 +1,6 @@
 use super::Item;
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Grass {
     quantity: i8,
@@ -22,8 +23,8 @@ impl Item for Grass {
         Span::styled("\"", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "grass"
+    fn name(lang: String) -> String {
+        t!("game.res.grass",lang)
     }
 
     fn damage(&self) -> u8 {

@@ -6,6 +6,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{player::Player, Action};
+use locales::t;
 
 pub struct Crawler {
     x: i64,
@@ -34,9 +35,9 @@ impl<'a> Crawler {
 }
 
 impl<'a> Entity<'a> for Crawler {
-    fn name<'b>(&self) -> &'b str {
-        "crawler"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.crawler", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         let color = if self.immunity == 0 {

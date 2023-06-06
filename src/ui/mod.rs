@@ -5,3 +5,4 @@ pub mod main_menu;
 pub mod config;
 pub mod how_to_play;
 pub mod settings;
+pub mod game_over;

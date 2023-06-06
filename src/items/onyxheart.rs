@@ -6,6 +6,7 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct OnyxHeart {
     quantity: i8
@@ -21,8 +22,8 @@ impl Item for OnyxHeart {
         Span::styled(" ", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "onyx heart"
+    fn name(lang: String) -> String {
+        t!("game.res.onyx_heart",lang)
     }
 
     fn damage(&self) -> u8 {

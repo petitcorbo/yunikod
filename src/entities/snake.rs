@@ -6,6 +6,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{player::Player, Action};
+use locales::t;
 
 pub struct Snake {
     x: i64,
@@ -16,6 +17,7 @@ pub struct Snake {
     frame: u8,
     immunity: u8,
     until_next_step: u8,
+    pub language: String
 }
 
 impl<'a> Snake {
@@ -28,15 +30,16 @@ impl<'a> Snake {
             damage: 8,
             frame: 0,
             immunity: 0,
-            until_next_step: 10
+            until_next_step: 10,
+            language: String::new()
         }
     }
 }
 
 impl<'a> Entity<'a> for Snake {
-    fn name<'b>(&self) -> &'b str {
-        "snake"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.snake", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         let color = if self.immunity == 0 {

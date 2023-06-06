@@ -5,6 +5,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{player::Player, Action};
+use locales::t;
 
 pub struct Swing {
     x: i64,
@@ -27,9 +28,9 @@ impl<'a> Swing {
 }
 
 impl<'a> Entity<'a> for Swing {
-    fn name<'b>(&self) -> &'b str {
-        "swing"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.swing", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         match self.looking {

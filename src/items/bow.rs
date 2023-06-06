@@ -6,6 +6,7 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Bow;
 
@@ -19,8 +20,8 @@ impl Item for Bow {
         Span::styled(")", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "bow"
+    fn name<'a>(lang: String) -> &'a str {
+        t!("game.items.bow",lang).as_str()
     }
 
     fn quantity(&self) -> i8 {

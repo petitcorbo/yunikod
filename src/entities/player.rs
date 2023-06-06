@@ -5,6 +5,7 @@ use tui::{
     widgets::canvas::Context,
 };
 use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, inventory::Inventory};
+use locales::t;
 
 pub struct Player {
     pub x: i64,
@@ -17,6 +18,7 @@ pub struct Player {
     life: u8,
     max_life: u8,
     immunity: u8,
+    pub language: String
 }
 
 impl<'a> Player {
@@ -32,6 +34,7 @@ impl<'a> Player {
             life: 100,
             max_life: 100,
             immunity: 20,
+            language: String::new()
         }
     }
 
@@ -79,18 +82,19 @@ impl<'a> Player {
         if let Some(block) = game.get_mut_block(x, y) {
             if block.is_compatible_tool(item) {
                 let item_collected = block.collect();
-                message = format!("collected {} x{}", item_collected.name(), item.quantity());
+                message = format!("{} {} x{}", t!("game.msg.player.collected", self.language), item_collected.name(self.language.to_owned()), item.quantity());
                 self.inventory.add(item_collected);
                 if block.is_destroyed() {
                     game.destroy_block(x, y);
                 }
             } else {
-                message = format!("you can't do that");
+                message = t!("game.msg.player.youcant", self.language);
             }
         } else if let Some(entity_id) = game.get_entity_id(x, y) {
             let entity = &mut game.mut_entities()[entity_id];
+            //let entity_name = entity.name().to_string();
             entity.hurt(item.damage());
-            message = format!("dealt {} to {}", item.damage(), entity.name());
+            message = format!("{} {}dmg {} {}",t!("game.msg.player.dealt", self.language), item.damage(),t!("game.msg.player.to", self.language), entity.name(self.language.to_owned()));
         } else {
             game.set_message(message);
             return item.utilize((x, y, self.looking.to_owned()));

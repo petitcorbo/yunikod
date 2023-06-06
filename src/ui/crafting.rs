@@ -70,14 +70,14 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
 
     let mut list_state = ListState::default();
     list_state.select(Some(list_idx));
-    let list = List::new(Recipe::item_list(player.inventory()))
+    let list = List::new(Recipe::item_list(player.inventory(),lang.clone()))
         .block(Block::default().borders(Borders::ALL))
         .highlight_symbol(">");
     frame.render_stateful_widget(list, vchunks[1], &mut list_state);
 
     let selected_recipe = &Recipe::recipes()[list_idx];
-    let para_needs = Paragraph::new(selected_recipe.information(player.inventory()))
-        .block(Block::default().borders(Borders::ALL).title(selected_recipe.name()));
+    let para_needs = Paragraph::new(selected_recipe.information(player.inventory(), lang.clone()))
+        .block(Block::default().borders(Borders::ALL).title(selected_recipe.name(lang.clone())));
     frame.render_widget(para_needs, vchunks[2]);
 
     let para_action = Paragraph::new(game.message())

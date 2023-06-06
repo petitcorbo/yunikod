@@ -16,8 +16,8 @@ use std::{
 };
 use crate::{entities::{
     EntityKind,
-    player::Player, Direction, Action
-}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting, map}};
+    player::Player, Direction, Action,
+}, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting, map, game_over}};
 use locales::t;
 
 const TITLE: &str = "Yuni-Kod";
@@ -32,7 +32,8 @@ pub struct Game {
     y_bounds: i64,
     perlin: PerlinNoise2D,
     message: String,
-    message_timer: u8
+    message_timer: u8,
+    pub language: String
 }
 
 impl<'a> Game {
@@ -58,7 +59,8 @@ impl<'a> Game {
             y_bounds: 0,
             perlin,
             message: String::new(),
-            message_timer: 0
+            message_timer: 0,
+            language: String::new()
         }
     }
 
@@ -225,7 +227,9 @@ impl<'a> Game {
             }
         }
     }
-
+    pub fn get_lang(&self)-> String{
+      self.language.to_owned()
+    }
     pub fn message(&self) -> String {
         self.message.to_owned()
     }
@@ -316,6 +320,8 @@ fn launch_tab<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &
 }
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: Player, lang: &mut String) -> io::Result<()> {
+    game.language = lang.to_string();
+    player.language = lang.to_string();
     let tick_rate = Duration::from_millis(50);
     let mut last_tick = Instant::now();
     loop {
@@ -342,6 +348,10 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, mut game: Game, mut player: P
 
         // game update \\
         if last_tick.elapsed() >= tick_rate {
+            if player.is_dead(){
+              let end = game_over::run(terminal,lang);
+              if let Err(error) = end{println!("{error}");}
+            }
             player.on_tick(&mut game);
             player.moving(false);
             game.on_tick(&mut player, lang.to_string());

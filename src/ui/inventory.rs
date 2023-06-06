@@ -69,17 +69,17 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player,
     frame.render_widget(gauge_lifebar, hchunks0[1]);
 
     let idx = player.using();
-    let para_using = Paragraph::new(format!("{} {}",t!("game.ui.using",lang), player.inventory().get(idx).name()))
+    let para_using = Paragraph::new(format!("{} {}",t!("game.ui.using",lang), player.inventory().get(idx).name(lang.to_owned())))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_using, hchunks1[0]);
 
-    let para_equiped = Paragraph::new(format!("{}",t!("game.ui.equiped",lang)))
+    let para_equiped = Paragraph::new(format!("{}",t!("game.ui.equiped",lang.to_owned())))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_equiped, hchunks1[1]);
 
     let mut list_state = ListState::default();
     list_state.select(Some(list_idx));
-    let list = List::new(player.inventory().to_extended_item_list())
+    let list = List::new(player.inventory().to_extended_item_list(lang))
         .block(Block::default().borders(Borders::ALL))
         .highlight_symbol(">");
     frame.render_stateful_widget(list, vchunks[2], &mut list_state);

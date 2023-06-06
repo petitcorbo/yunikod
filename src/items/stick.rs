@@ -1,6 +1,7 @@
 use super::Item;
 use crate::entities::{EntityKind, swing::Swing};
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Stick {
     quantity: i8,
@@ -24,8 +25,8 @@ impl Item for Stick {
         Span::styled("ɻ", Style::default().fg(Color::Rgb(145, 77, 5)))
     }
 
-    fn name<'a>() -> &'a str {
-        "stick"
+    fn name(lang: String) -> String {
+        t!("game.items.stick",lang)
     }
 
     fn damage(&self) -> u8 {

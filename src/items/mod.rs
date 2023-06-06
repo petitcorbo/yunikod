@@ -11,7 +11,7 @@ pub mod pickaxe;
 pub mod axe;
 pub mod hand;
 
-use crate::entities::{EntityKind, Direction};
+use crate::{entities::{EntityKind, Direction}};
 use dragonsoul::DragonSoul;
 use onyxheart::OnyxHeart;
 use tui::text::Span;
@@ -86,20 +86,20 @@ impl ItemKind {
         }
     }
 
-    pub fn name<'a>(&self) -> &str {
+    pub fn name(&self, lang: String) -> String{
         match self {
-            ItemKind::OH(_) => OnyxHeart::name(),
-            ItemKind::DS(_) => DragonSoul::name(),
-            ItemKind::Stick(_) => Stick::name(),
-            ItemKind::Stone(_) => Stone::name(),
-            ItemKind::Gold(_) => Gold::name(),
-            ItemKind::Grass(_) => Grass::name(),
-            ItemKind::Wood(_) => Wood::name(),
-            ItemKind::Iron(_) => Iron::name(),
-            ItemKind::Coal(_) => Coal::name(),
-            ItemKind::Pickaxe(_) => Pickaxe::name(),
-            ItemKind::Axe(_) => Axe::name(),
-            ItemKind::Hand(_) => Hand::name(),
+            ItemKind::OH(_) => OnyxHeart::name(lang),
+            ItemKind::DS(_) => DragonSoul::name(lang),
+            ItemKind::Stick(_) => Stick::name(lang),
+            ItemKind::Stone(_) => Stone::name(lang),
+            ItemKind::Gold(_) => Gold::name(lang),
+            ItemKind::Grass(_) => Grass::name(lang),
+            ItemKind::Wood(_) => Wood::name(lang),
+            ItemKind::Iron(_) => Iron::name(lang),
+            ItemKind::Coal(_) => Coal::name(lang),
+            ItemKind::Pickaxe(_) => Pickaxe::name(lang),
+            ItemKind::Axe(_) => Axe::name(lang),
+            ItemKind::Hand(_) => Hand::name(lang),
         }
     }
 
@@ -140,7 +140,7 @@ impl ItemKind {
 pub trait Item {
     fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind>;
     fn shape<'a>() -> Span<'a>;
-    fn name<'a>() -> &'a str;
+    fn name(lang: String) -> String;
     fn quantity(&self) -> i8;
     fn max_quantity(&self) -> i8;
     fn change_quantity(&mut self, amount: i8) -> i8;

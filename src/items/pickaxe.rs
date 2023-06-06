@@ -1,6 +1,7 @@
 use super::Item;
 use crate::entities::{EntityKind, swing::Swing};
 use tui::{text::Span, style::{Style, Color}};
+use locales::t;
 
 pub struct Pickaxe {
     quantity: i8,
@@ -23,8 +24,8 @@ impl Item for Pickaxe {
         Span::styled("T", Style::default().fg(Color::Red))
     }
 
-    fn name<'a>() -> &'a str {
-        "axe"
+    fn name(lang: String) -> String {
+        t!("game.items.pickaxe",lang)
     }
 
     fn damage(&self) -> u8 {

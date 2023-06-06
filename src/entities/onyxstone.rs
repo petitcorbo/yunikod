@@ -5,6 +5,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::player::Player;
+use locales::t;
 
 pub struct OnyxStone {
     x: i64,
@@ -27,9 +28,9 @@ impl<'a> OnyxStone {
 }
 
 impl<'a> Entity<'a> for OnyxStone {
-    fn name<'b>(&self) -> &'b str {
-        "onyx stone"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.onyx_stone", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         Span::styled("*", Style::default().fg(Color::Yellow))

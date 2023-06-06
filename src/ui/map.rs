@@ -62,7 +62,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
     let canvas = Canvas::default()
         .x_bounds([-w, w])
         .y_bounds([-h, h])
-        .block(Block::default().title("map").borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.tab.map",lang)).borders(Borders::ALL))
         .paint(|ctx| {
             for chunk in game.loaded_chunks() {
                 ctx.print(chunk.0 as f64, chunk.1 as f64, chunk.average_terrain().span());

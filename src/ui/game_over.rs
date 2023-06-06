@@ -8,28 +8,24 @@ use tui::{
     widgets::{Block, Borders, Paragraph}, text::{Spans, Span, Text}
 };
 use std::io;
-use crate::{game::{self, Game}, entities::player::Player, ui::{settings,how_to_play}};
+use crate::{game::{self, Game}, entities::player::Player, ui::main_menu};
 use locales::t;
 
-fn build_title<'a>(color: Color) -> Text<'a> {
-    let style = Style::default().fg(color);
+fn build_title<'a>() -> Text<'a> {
+    let style = Style::default().fg(Color::Red);
 
     Text::from(vec![
         Spans(vec![
-            Span::raw(" ___ ___               __       "),
-            Span::styled(" __  __           __ ", style)
+            Span::styled(" _______                            _______                   ", style)
         ]),
         Spans(vec![
-            Span::raw("|   |   |.--.--.-----.|__|______"),
-            Span::styled("|  |/  |.-----.--|  |", style)
+            Span::styled("|     __|.---.-.--------.-----.    |       |.--.--.-----.----.", style)
         ]),
         Spans(vec![
-            Span::raw(" \\     / |  |  |     ||  |______"),
-            Span::styled("|     < |  _  |  _  |", style)
+            Span::styled("|    |  ||  _  |        |  -__|    |   -   ||  |  |  -__|   _|", style)
         ]),
         Spans(vec![
-            Span::raw("  |___|  |_____|__|__||__|      "),
-            Span::styled("|__|\\__||_____|_____|", style)
+            Span::styled(r"|_______||___._|__|__|__|_____|    |_______| \___/|_____|__|  ", style)
         ]),
     ])
 }
@@ -59,10 +55,8 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Res
                 },
                 KeyCode::Enter => {
                     match list_idx {
-                        0 => {terminal.clear().expect("Error on change MENU->NEW GAME"); new_game(terminal, lang)}?,
-                        1 => {terminal.clear().expect("Error on change MENU->HTP"); how_to_play::run(terminal, lang)}?,
-                        2 => {terminal.clear().expect("Error on change MENU->SETTINGS"); settings::run(terminal, lang)}?,
-                        3 => std::process::exit(0),
+                        0 => {terminal.clear().expect("Error on change GAMEOVER->NEW GAME"); new_game(terminal, lang)}?,
+                        1 => {terminal.clear().expect("Error on change GAMEOVER->MAIN MENU"); main_menu::run(terminal, lang)}?,
                         _ => {}
                     }
                 },
@@ -89,7 +83,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
         }
     }
     
-    let para_title = Paragraph::new(build_title(color))
+    let para_title = Paragraph::new(build_title())
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
     frame.render_widget(para_title, vchunks[0]);
@@ -99,20 +93,11 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
         .alignment(Alignment::Center);
     frame.render_widget(para_new_game, vchunks[1]);
 
-    let para_htp = Paragraph::new(Span::styled(t!("main.opt.htp",lang), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)))
+    let para_main_menu = Paragraph::new(Span::styled(t!("main.opt.main_menu",lang), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)))
         .block(blocks[1].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_htp, vchunks[2]);
-  
-    let para_settings = Paragraph::new(Span::styled(t!("main.opt.settings",lang), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
-        .block(blocks[2].clone())
-        .alignment(Alignment::Center);
-    frame.render_widget(para_settings, vchunks[3]);
+    frame.render_widget(para_main_menu, vchunks[2]);
 
-    let para_exit = Paragraph::new(Span::styled(t!("opt.exit",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
-        .block(blocks[3].clone())
-        .alignment(Alignment::Center);
-    frame.render_widget(para_exit, vchunks[4]); 
 }
 
 fn new_game<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Result<()>{

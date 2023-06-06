@@ -6,6 +6,7 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{player::Player, Action};
+use locales::t;
 
 pub struct Ovis {
     x: i64,
@@ -34,9 +35,9 @@ impl<'a> Ovis {
 }
 
 impl<'a> Entity<'a> for Ovis {
-    fn name<'b>(&self) -> &'b str {
-        "ovis"
-    }
+    fn name(&self,lang: String) -> String {
+       t!("game.entity.ovis", lang).to_string()
+    } 
 
     fn shape(&self) -> Span<'a> {
         let color = if self.immunity == 0 {

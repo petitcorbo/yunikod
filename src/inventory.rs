@@ -1,6 +1,7 @@
 use tui::{widgets::ListItem, text::{Span, Spans, Text}, style::{Style, Color}};
 use std::{ops::{Index, IndexMut}, mem::discriminant};
 use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood, hand::Hand};
+use locales::t;
 
 #[derive(Clone)]
 pub enum Direction {
@@ -33,15 +34,15 @@ impl Recipe {
         }
     }
 
-    pub fn name<'a>(&self) -> String {
+    pub fn name<'a>(&self,lang: String) -> String {
         let s = match self {
-            Recipe::Pickaxe => "pickaxe",
-            Recipe::Axe => "axe",
-            Recipe::Arrow => "arrow",
-            Recipe::Armor => "armor",
-            Recipe::Bow => "bow",
-            Recipe::Boat => "boat",
-            Recipe::Sword => "sword"
+            Recipe::Pickaxe => t!("game.items.pickaxe",lang),
+            Recipe::Axe => t!("game.items.axe",lang),
+            Recipe::Arrow => t!("game.items.arrow",lang),
+            Recipe::Armor => t!("game.items.armor",lang),
+            Recipe::Bow => t!("game.items.bow",lang),
+            Recipe::Boat => t!("game.items.boat",lang),
+            Recipe::Sword => t!("game.items.sword",lang)
         };
         String::from(s)
     }
@@ -58,14 +59,14 @@ impl Recipe {
         }
     }
 
-    pub fn information(&self, inventory: &Inventory) -> Text {
+    pub fn information(&self, inventory: &Inventory, lang: String) -> Text {
         let mut text = Vec::new();
         for (item, amount) in self.needs() {
             let total_quantity = inventory.total_quantity(&item);
             let color = if total_quantity < amount as u32 {
                 Color::Red
             } else { Color::White };
-            let s1 = format!("{}: ", item.name());
+            let s1 = format!("{}: ", item.name(lang.to_owned()));
             let s2 = format!("{total_quantity}/{amount}");
             let spans = vec![
                 Span::raw(s1),
@@ -76,12 +77,12 @@ impl Recipe {
         Text::from(text)
     }
 
-    pub fn item_list(inventory: &Inventory) -> Vec<ListItem> {
+    pub fn item_list<'a>(inventory: &'a Inventory, lang: String) -> Vec<ListItem<'a>> {
         Recipe::recipes()
             .iter()
             .map(|x| {
                 let color = if inventory.can_craft(x) {Color::White} else {Color::DarkGray};
-                ListItem::new(Span::styled(x.name(), Style::default().fg(color)))
+                ListItem::new(Span::styled(x.name(lang.clone()), Style::default().fg(color)))
             })
             .collect()
     }
@@ -170,11 +171,11 @@ impl Inventory {
         listitem
     }
 
-    pub fn to_extended_item_list(&self) -> Vec<ListItem> {
+    pub fn to_extended_item_list(&self,lang: String) -> Vec<ListItem> {
         let mut listitem = Vec::new();
         for item in &self.0 {
             let spans = Spans::from(vec![
-                Span::from(item.name()),
+                Span::from(item.name(lang.to_owned())),
                 Span::from(" ["),
                 item.shape(),
                 Span::from("] x"),

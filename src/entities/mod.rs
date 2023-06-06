@@ -182,16 +182,16 @@ impl EntityKind {
         }
     }
 
-    pub fn name<'a>(&self) -> &'a str {
+    pub fn name(&self, lang: String) -> String {
         match self {
-            EntityKind::OnyxStone(e) => e.name(),
-            EntityKind::Fire(e) => e.name(),
-            EntityKind::Swing(e) => e.name(),
-            EntityKind::Snake(e) => e.name(),
-            EntityKind::Ovis(e) => e.name(),
-            EntityKind::Scorpy(e) => e.name(),
-            EntityKind::Golem(e) => e.name(),
-            EntityKind::Crawler(e) => e.name(),
+            EntityKind::OnyxStone(e) => e.name(lang),
+            EntityKind::Fire(e) => e.name(lang),
+            EntityKind::Swing(e) => e.name(lang),
+            EntityKind::Snake(e) => e.name(lang),
+            EntityKind::Ovis(e) => e.name(lang),
+            EntityKind::Scorpy(e) => e.name(lang),
+            EntityKind::Golem(e) => e.name(lang),
+            EntityKind::Crawler(e) => e.name(lang),
         }
     }
 }
@@ -209,7 +209,7 @@ pub trait Entity<'a> {
     fn looking(&mut self) -> Direction;
     fn is_harmful(&self) -> bool;
     fn damage(&self) -> u8;
-    fn name<'b>(&self) -> &'b str;
+    fn name(&self, lang: String) -> String;
     
     fn looking_at(&mut self) -> (i64, i64, Direction) {
         match self.looking() {
