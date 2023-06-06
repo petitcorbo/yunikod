@@ -18,8 +18,8 @@ cd yuni-kod
 cargo run
 ```
 # How to play
-[Arrows] move the player
-[i] open inventory
-[m] open map
-[c] open crafting menu
+[Arrows] move the player\
+[i] open inventory\
+[m] open map\
+[c] open crafting menu\
 [Space] use item
