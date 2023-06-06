@@ -157,7 +157,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
     .block(Block::default().title(t!("htp.title",lang)).borders(Borders::ALL))
     .widths(&[Constraint::Length(20), Constraint::Length(20), Constraint::Length(20),Constraint::Length(20)])
     .column_spacing(3);
-    vchunks[0].y=frame.size().height/2-20;
+    vchunks[0].y=7;
     vchunks[0].height=9;
     frame.render_widget(par,vchunks[0]);
     
