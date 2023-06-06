@@ -115,7 +115,9 @@ fn new_game<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()>{
     while game.perlin().get_noise(x, 0.0) < 0.0 {
         x += 1.0
     }
-    let player = Player::new(x as i64, 0);
+    //let player = Player::new(x as i64, 0);
+    let mut player = Player::new(x as i64, 0);
+    player.inventory().add(crate::items::ItemKind::Stick(crate::items::stick::Stick::new(20)));
     game::run(terminal, game, player)?;
     Ok(())
 }

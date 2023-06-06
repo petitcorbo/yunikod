@@ -290,7 +290,7 @@ impl<'a> Game {
 
 fn on_key<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, player: &mut Player, c: char) {
     match c {
-        ' ' => {
+        ' ' | 'k' => {
             if let Some(entity) = player.on_space(game) {
                 game.entities.push(entity);
             }

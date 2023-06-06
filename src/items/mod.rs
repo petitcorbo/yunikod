@@ -10,6 +10,7 @@ pub mod iron;
 pub mod pickaxe;
 pub mod axe;
 pub mod hand;
+pub mod bow;
 
 use crate::entities::{EntityKind, Direction};
 use dragonsoul::DragonSoul;
@@ -17,7 +18,7 @@ use onyxheart::OnyxHeart;
 use tui::text::Span;
 use wood::Wood;
 
-use self::{gold::Gold, iron::Iron, coal::Coal, grass::Grass, stick::Stick, stone::Stone, pickaxe::Pickaxe, axe::Axe, hand::Hand};
+use self::{gold::Gold, iron::Iron, coal::Coal, grass::Grass, stick::Stick, stone::Stone, pickaxe::Pickaxe, axe::Axe, hand::Hand, bow::Bow};
 
 pub enum ItemKind {
     OH(OnyxHeart),
@@ -31,7 +32,8 @@ pub enum ItemKind {
     Stick(Stick),
     Pickaxe(Pickaxe),
     Axe(Axe),
-    Hand(Hand)
+    Hand(Hand),
+    Bow(Bow)
 }
 
 impl ItemKind {
@@ -49,6 +51,7 @@ impl ItemKind {
             ItemKind::Pickaxe(i) => i.utilize(coords),
             ItemKind::Axe(i) => i.utilize(coords),
             ItemKind::Hand(i) => i.utilize(coords),
+            ItemKind::Bow(i) => i.utilize(coords),
         }
     }
 
@@ -66,6 +69,7 @@ impl ItemKind {
             ItemKind::Pickaxe(i) => i.damage(),
             ItemKind::Axe(i) => i.damage(),
             ItemKind::Hand(i) => i.damage(),
+            ItemKind::Bow(i) => i.damage(),
         }
     }
 
@@ -83,6 +87,7 @@ impl ItemKind {
             ItemKind::Pickaxe(_) => Pickaxe::shape(),
             ItemKind::Axe(_) => Axe::shape(),
             ItemKind::Hand(_) => Hand::shape(),
+            ItemKind::Bow(_) => Bow::shape(),
         }
     }
 
@@ -100,6 +105,7 @@ impl ItemKind {
             ItemKind::Pickaxe(_) => Pickaxe::name(),
             ItemKind::Axe(_) => Axe::name(),
             ItemKind::Hand(_) => Hand::name(),
+            ItemKind::Bow(_) => Bow::name(),
         }
     }
 
@@ -117,6 +123,7 @@ impl ItemKind {
             ItemKind::Pickaxe(i) => i.quantity(),
             ItemKind::Axe(i) => i.quantity(),
             ItemKind::Hand(i) => i.quantity(),
+            ItemKind::Bow(i) => i.quantity(),
         }
     }
     pub fn change_quantity(&mut self, amount: i8) -> i8 {
@@ -133,6 +140,7 @@ impl ItemKind {
             ItemKind::Pickaxe(i) => i.change_quantity(amount),
             ItemKind::Axe(i) => i.change_quantity(amount),
             ItemKind::Hand(i) => i.change_quantity(amount),
+            ItemKind::Bow(i) => i.change_quantity(amount),
         }
     }
 }

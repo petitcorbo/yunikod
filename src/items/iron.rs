@@ -23,7 +23,7 @@ impl Item for Iron {
     }
 
     fn name<'a>() -> &'a str {
-        "axe"
+        "iron"
     }
 
     fn damage(&self) -> u8 {

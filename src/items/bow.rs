@@ -2,17 +2,28 @@ use crate::{
     items::Item,
     entities::{
         EntityKind,
-        bullet::Bullet, Direction,
+        Direction,
+        arrow::Arrow
     }
 };
 use tui::{text::Span, style::{Style, Color}};
 
-pub struct Bow;
+pub struct Bow {
+    quantity: i8
+}
+
+impl Bow {
+    pub fn new() -> Bow {
+        Bow {
+            quantity: 1
+        }
+    }
+}
 
 impl Item for Bow {
     fn utilize(&self, coords: (i64, i64, Direction)) -> Option<EntityKind> {
         let (x, y, direction) = coords;
-        Some(EntityKind::Bullet(Bullet::new(x, y, direction)))
+        Some(EntityKind::Arrow(Arrow::new(x, y, direction, 5)))
     }
 
     fn shape<'a>() -> tui::text::Span<'a> {
@@ -21,6 +32,10 @@ impl Item for Bow {
 
     fn name<'a>() -> &'a str {
         "bow"
+    }
+
+    fn damage(&self) -> u8 {
+        2
     }
 
     fn quantity(&self) -> i8 {

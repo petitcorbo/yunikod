@@ -1,6 +1,6 @@
 use tui::{widgets::ListItem, text::{Span, Spans, Text}, style::{Style, Color}};
 use std::{ops::{Index, IndexMut}, mem::discriminant};
-use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood, hand::Hand};
+use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood, hand::Hand, bow::Bow};
 
 #[derive(Clone)]
 pub enum Direction {
@@ -9,6 +9,12 @@ pub enum Direction {
     Left,
     Right,
 }
+
+
+
+
+
+
 
 pub enum Recipe {
     Axe,
@@ -29,7 +35,7 @@ impl Recipe {
             Recipe::Armor => ItemKind::Axe(Axe::new()),
             Recipe::Arrow => ItemKind::Axe(Axe::new()),
             Recipe::Sword => ItemKind::Axe(Axe::new()),
-            Recipe::Bow => ItemKind::Axe(Axe::new()),
+            Recipe::Bow => ItemKind::Bow(Bow::new()),
         }
     }
 
@@ -48,8 +54,8 @@ impl Recipe {
 
     pub fn needs(&self) -> Vec<(ItemKind, i8)> {
         match self {
-            Recipe::Pickaxe => vec![(ItemKind::Stone(Stone::new(1)), 5), (ItemKind::Stick(Stick::new(1)), 5)],
-            Recipe::Axe => vec![(ItemKind::Stone(Stone::new(1)), 5), (ItemKind::Stick(Stick::new(1)), 5)],
+            Recipe::Pickaxe => vec![(ItemKind::Stone(Stone::new(1)), 5), (ItemKind::Stick(Stick::new(1)), 2)],
+            Recipe::Axe => vec![(ItemKind::Stone(Stone::new(1)), 7), (ItemKind::Stick(Stick::new(1)), 2)],
             Recipe::Arrow => vec![(ItemKind::Stone(Stone::new(1)), 1), (ItemKind::Stick(Stick::new(1)), 1)],
             Recipe::Armor => vec![(ItemKind::Iron(Iron::new(1)), 20)],
             Recipe::Boat => vec![(ItemKind::Wood(Wood::new(1)), 20)],
@@ -94,9 +100,17 @@ impl Recipe {
             Recipe::Arrow,
             Recipe::Boat,
             Recipe::Sword,
+            Recipe::Bow,
         ]
     }
 }
+
+
+
+
+
+
+
 
 pub struct Inventory(Vec<ItemKind>);
 

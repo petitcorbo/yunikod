@@ -1,6 +1,6 @@
 use tui::{widgets::canvas::Context, text::Span};
 use crate::game::Game;
-use self::{onyxstone::OnyxStone, fire::Fire, swing::Swing, player::Player, snake::Snake, ovis::Ovis, crawler::Crawler, golem::Golem, scorpy::Scorpy};
+use self::{onyxstone::OnyxStone, fire::Fire, swing::Swing, player::Player, snake::Snake, ovis::Ovis, crawler::Crawler, golem::Golem, scorpy::Scorpy, arrow::Arrow};
 
 pub mod player;
 pub mod onyxstone;
@@ -11,6 +11,7 @@ pub mod ovis;
 pub mod scorpy;
 pub mod golem;
 pub mod crawler;
+pub mod arrow;
 
 #[derive(Clone)]
 pub enum Direction {
@@ -29,6 +30,7 @@ pub enum EntityKind {
     Scorpy(Scorpy),
     Golem(Golem),
     Crawler(Crawler),
+    Arrow(Arrow),
 }
 
 pub enum Action {
@@ -49,6 +51,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.on_tick(),
             EntityKind::Golem(e) => e.on_tick(),
             EntityKind::Crawler(e) => e.on_tick(),
+            EntityKind::Arrow(e) => e.on_tick(),
         }
     }
 
@@ -62,6 +65,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.go(x, y),
             EntityKind::Golem(e) => e.go(x, y),
             EntityKind::Crawler(e) => e.go(x, y),
+            EntityKind::Arrow(e) => e.go(x, y),
         }
     }
 
@@ -75,6 +79,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.hurt(amount),
             EntityKind::Golem(e) => e.hurt(amount),
             EntityKind::Crawler(e) => e.hurt(amount),
+            EntityKind::Arrow(e) => e.hurt(amount),
         }
     }
 
@@ -88,6 +93,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.on_action(player, game),
             EntityKind::Golem(e) => e.on_action(player, game),
             EntityKind::Crawler(e) => e.on_action(player, game),
+            EntityKind::Arrow(e) => e.on_action(player, game),
         }
     }
 
@@ -101,6 +107,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
             EntityKind::Golem(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
             EntityKind::Crawler(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
+            EntityKind::Arrow(e) => ctx.print(e.x() as f64, e.y() as f64, e.shape()),
         };
     }
 
@@ -114,6 +121,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.looking_at(),
             EntityKind::Golem(e) => e.looking_at(),
             EntityKind::Crawler(e) => e.looking_at(),
+            EntityKind::Arrow(e) => e.looking_at(),
         }
     }
     
@@ -127,6 +135,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.looking(),
             EntityKind::Golem(e) => e.looking(),
             EntityKind::Crawler(e) => e.looking(),
+            EntityKind::Arrow(e) => e.looking(),
         }
     }
 
@@ -140,6 +149,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.is_dead(),
             EntityKind::Golem(e) => e.is_dead(),
             EntityKind::Crawler(e) => e.is_dead(),
+            EntityKind::Arrow(e) => e.is_dead(),
         }
     }
 
@@ -153,6 +163,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => (x, y) == (e.x(), e.y()),
             EntityKind::Golem(e) => (x, y) == (e.x(), e.y()),
             EntityKind::Crawler(e) => (x, y) == (e.x(), e.y()),
+            EntityKind::Arrow(e) => (x, y) == (e.x(), e.y()),
         }
     }
 
@@ -166,6 +177,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.is_harmful(),
             EntityKind::Golem(e) => e.is_harmful(),
             EntityKind::Crawler(e) => e.is_harmful(),
+            EntityKind::Arrow(e) => e.is_harmful(),
         }
     }
 
@@ -179,6 +191,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.damage(),
             EntityKind::Golem(e) => e.damage(),
             EntityKind::Crawler(e) => e.damage(),
+            EntityKind::Arrow(e) => e.damage(),
         }
     }
 
@@ -192,6 +205,7 @@ impl EntityKind {
             EntityKind::Scorpy(e) => e.name(),
             EntityKind::Golem(e) => e.name(),
             EntityKind::Crawler(e) => e.name(),
+            EntityKind::Arrow(e) => e.name(),
         }
     }
 }
