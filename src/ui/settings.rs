@@ -9,7 +9,8 @@ use tui::{
     Frame, Terminal,
 };
 use crate::ui::config;
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 fn build_title<'a>(color: Color) -> Text<'a> {
     let style = Style::default().fg(color);
@@ -69,6 +70,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Res
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
+    rust_i18n::set_locale(&lang); // set language
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -88,13 +90,13 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
         .alignment(Alignment::Center);
     frame.render_widget(para_title, vchunks[0]);
     
-    let para_new_game = Paragraph::new(Span::styled(t!("settings.opt.language",lang), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
+    let para_language = Paragraph::new(Span::styled(t!("settings.language.opt"), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
         .block(blocks[0].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_new_game, vchunks[1]);
+    frame.render_widget(para_language, vchunks[1]);
 
-    let para_exit = Paragraph::new(Span::styled(t!("opt.back",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
+    let para_back = Paragraph::new(Span::styled(t!("main.opt.back"), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
         .block(blocks[1].clone())
         .alignment(Alignment::Center);
-    frame.render_widget(para_exit, vchunks[2]);
+    frame.render_widget(para_back, vchunks[2]);
 }

@@ -1,7 +1,8 @@
 use tui::{widgets::ListItem, text::{Span, Spans, Text}, style::{Style, Color}};
 use std::{ops::{Index, IndexMut}, mem::discriminant};
 use crate::items::{ItemKind, axe::Axe, pickaxe::Pickaxe, stone::Stone, stick::Stick, iron::Iron, wood::Wood, hand::Hand};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 #[derive(Clone)]
 pub enum Direction {
@@ -36,13 +37,13 @@ impl Recipe {
 
     pub fn name<'a>(&self,lang: String) -> String {
         let s = match self {
-            Recipe::Pickaxe => t!("game.items.pickaxe",lang),
-            Recipe::Axe => t!("game.items.axe",lang),
-            Recipe::Arrow => t!("game.items.arrow",lang),
-            Recipe::Armor => t!("game.items.armor",lang),
-            Recipe::Bow => t!("game.items.bow",lang),
-            Recipe::Boat => t!("game.items.boat",lang),
-            Recipe::Sword => t!("game.items.sword",lang)
+            Recipe::Pickaxe => t!("game.items.pickaxe",locale=&lang),
+            Recipe::Axe => t!("game.items.axe",locale=&lang),
+            Recipe::Arrow => t!("game.items.arrow",locale=&lang),
+            Recipe::Armor => t!("game.items.armor",locale=&lang),
+            Recipe::Bow => t!("game.items.bow",locale=&lang),
+            Recipe::Boat => t!("game.items.boat",locale=&lang),
+            Recipe::Sword => t!("game.items.sword",locale=&lang)
         };
         String::from(s)
     }

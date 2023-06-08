@@ -1,0 +1,102 @@
+game:
+  entity:
+    crawler: Crawler
+    fire: Огонь
+    golem: Golem
+    onyx_stone: Камень Onyx
+    ovis: Ovis
+    player: 
+      name: Игрок
+      hand: Рука
+    scorpy: Скорпион
+    snake: Змея
+    swing: Баланс
+  err:
+    crafting:
+      ne: Недостаточный
+  items:
+    armor: Броня
+    arrow: Стрелка
+    axe: топор
+    boat: Лодка
+    bow: поклон
+    pickaxe: Кирка
+    stick: палка
+    sword: Меч
+  msg:
+    damage: Повреждать
+    took: Он взял
+    player:
+      collected: собрал
+      dealt: вызванный
+      to: для
+      youcant: Вы не можете сделать это
+  ores:
+    coal: Уголь
+    iron: Железо
+    gold: Золото
+  res:
+    dragon_soul: Душа Дракона
+    grass: грамм
+    onyx_heart: Сердце Onyx
+    stone: Камень
+    wood: Древесина
+  ui:
+    action: действие
+    equiped: "[m] оборудованный:"
+    life: "[Жизнь]"
+    ldchunks: "загруженные чанки:"
+    unchunks: "неиспользованные фрагменты:"
+    using: "[k] с использованием:"
+    tab:
+      name: "[Вкладка]"
+      crafting: создание
+      inventory: инвентарь
+      map: карта
+      menu: меню
+htp:
+  keys:
+    header: "ключи:"
+    action: "КОСМОС = Действие"
+    arrows: "СТРЕЛКИ = Двигаться"
+    crafting: "C = Создание"
+    inventory: "I = Инвентарь"
+    map: "M = карта"
+  ores:
+    header: "руды:"
+  res:
+    header: "Ресурсы:"
+    grasstuft: пучок травы
+    rock: Камень
+    sticks: палочки
+    stones: камни
+    tree: Дерево
+  sprites:
+    header: "Sprites Глобальный:"
+    grass: грамм
+    deepwater: Глубокие воды
+    player: Игрок
+    stone: Камень
+    water: Вода
+  title: КАК ИГРАТЬ
+main:
+  opt:
+    htp: Как играть
+    main_menu: Главное меню
+    new_game: Новая игра
+    settings: параметры
+    exit: Выйти
+    back: Вернуться назад
+settings:
+  language:
+    full:
+      0: "English"
+      1: "Português"
+      2: "Русский"
+      3: "日本"
+    short: 
+      0: "en"
+      1: "pt-BR"
+      2: "ru-RU"
+      3: "ja-JP"
+    opt: Язык

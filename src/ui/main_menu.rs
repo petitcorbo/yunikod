@@ -9,7 +9,8 @@ use tui::{
 };
 use std::io;
 use crate::{game::{self, Game}, entities::player::Player, ui::{settings,how_to_play}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 fn build_title<'a>(color: Color) -> Text<'a> {
     let style = Style::default().fg(color);
@@ -62,7 +63,7 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Res
                         0 => {terminal.clear().expect("Error on change MENU->NEW GAME"); new_game(terminal, lang)}?,
                         1 => {terminal.clear().expect("Error on change MENU->HTP"); how_to_play::run(terminal, lang)}?,
                         2 => {terminal.clear().expect("Error on change MENU->SETTINGS"); settings::run(terminal, lang)}?,
-                        3 => std::process::exit(0),
+                        3 => {terminal.clear().expect("Error on finish the game"); println!("Thanks for playing :)"); std::process::exit(0)},
                         _ => {}
                     }
                 },
@@ -74,6 +75,9 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Res
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
+
+    rust_i18n::set_locale(&lang); //set language
+  
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3),Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -93,23 +97,23 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
         .block(Block::default().borders(Borders::ALL))
         .alignment(Alignment::Center);
     frame.render_widget(para_title, vchunks[0]);
-
-    let para_new_game = Paragraph::new(Span::styled(t!("main.opt.new_game",lang), Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)))
+    
+    let para_new_game = Paragraph::new(Span::styled(t!("main.opt.new_game"), Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)))
         .block(blocks[0].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_new_game, vchunks[1]);
 
-    let para_htp = Paragraph::new(Span::styled(t!("main.opt.htp",lang), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)))
+    let para_htp = Paragraph::new(Span::styled(t!("main.opt.htp"), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)))
         .block(blocks[1].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_htp, vchunks[2]);
   
-    let para_settings = Paragraph::new(Span::styled(t!("main.opt.settings",lang), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
+    let para_settings = Paragraph::new(Span::styled(t!("main.opt.settings"), Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD)))
         .block(blocks[2].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_settings, vchunks[3]);
 
-    let para_exit = Paragraph::new(Span::styled(t!("opt.exit",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
+    let para_exit = Paragraph::new(Span::styled(t!("main.opt.exit"), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
         .block(blocks[3].clone())
         .alignment(Alignment::Center);
     frame.render_widget(para_exit, vchunks[4]); 

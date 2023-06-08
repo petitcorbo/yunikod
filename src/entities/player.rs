@@ -5,7 +5,8 @@ use tui::{
     widgets::canvas::Context,
 };
 use crate::{entities::{Direction, EntityKind}, items::ItemKind, game::Game, inventory::Inventory};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Player {
     pub x: i64,
@@ -75,26 +76,28 @@ impl<'a> Player {
     }
 
     pub fn on_space(&mut self, game: &mut Game) -> Option<EntityKind> {
+        rust_i18n::set_locale(&self.language); //set language
+      
         let (x, y, _) = self.looking_at();
-        let mut message: String;
-        message = format!("{} {} test", x , y);
+        let mut message: String = format!("");
+        //message = format!("{} {} test", x , y); uncomment that when you need to test
         let item = self.inventory.get(self.using);
         if let Some(block) = game.get_mut_block(x, y) {
             if block.is_compatible_tool(item) {
                 let item_collected = block.collect();
-                message = format!("{} {} x{}", t!("game.msg.player.collected", self.language), item_collected.name(self.language.to_owned()), item.quantity());
+                message = format!("{} {} x{}", t!("game.msg.player.collected"), item_collected.name(self.language.to_owned()), item.quantity());
                 self.inventory.add(item_collected);
                 if block.is_destroyed() {
                     game.destroy_block(x, y);
                 }
             } else {
-                message = t!("game.msg.player.youcant", self.language);
+                message = t!("game.msg.player.youcant");
             }
         } else if let Some(entity_id) = game.get_entity_id(x, y) {
             let entity = &mut game.mut_entities()[entity_id];
             //let entity_name = entity.name().to_string();
             entity.hurt(item.damage());
-            message = format!("{} {}dmg {} {}",t!("game.msg.player.dealt", self.language), item.damage(),t!("game.msg.player.to", self.language), entity.name(self.language.to_owned()));
+            message = format!("{} {}dmg {} {}",t!("game.msg.player.dealt"), item.damage(),t!("game.msg.player.to", locale=&self.language), entity.name(self.language.to_owned()));
         } else {
             game.set_message(message);
             return item.utilize((x, y, self.looking.to_owned()));

@@ -6,7 +6,8 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct DragonSoul {
     quantity: i8
@@ -23,7 +24,8 @@ impl Item for DragonSoul {
     }
 
     fn name(lang: String) -> String {
-        t!("game.res.dragon_soul",lang)
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.res.dragon_soul")
     }
 
     fn damage(&self) -> u8 {

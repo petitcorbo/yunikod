@@ -1,7 +1,8 @@
 use super::Item;
 use crate::entities::{EntityKind, swing::Swing};
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Pickaxe {
     quantity: i8,
@@ -25,7 +26,8 @@ impl Item for Pickaxe {
     }
 
     fn name(lang: String) -> String {
-        t!("game.items.pickaxe",lang)
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.items.pickaxe")
     }
 
     fn damage(&self) -> u8 {

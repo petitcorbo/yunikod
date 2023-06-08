@@ -12,7 +12,8 @@ use crate::{
     entities::player::Player,
     game::Game, inventory::Recipe
 };
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player, lang: &mut String) -> io::Result<u8> {
     let mut list_idx = 0;
@@ -44,6 +45,8 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, list_idx: usize,lang: String) {
+    rust_i18n::set_locale(&lang); //set language
+  
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(3), Constraint::Length(6), Constraint::Length(3)])
         .split(frame.size());
@@ -54,16 +57,16 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
         .split(vchunks[0]);
 
     let tabs = vec![
-        Span::raw(format!("{} | ",t!("game.ui.tab.inventory",lang))),
-        Span::styled(t!("game.ui.tab.crafting",lang), Style::default().fg(Color::Green)),
-        Span::raw(format!(" | {} | {}",t!("game.ui.tab.map",lang),t!("game.ui.tab.menu",lang))),
+        Span::raw(format!("{} | ",t!("game.ui.tab.inventory"))),
+        Span::styled(t!("game.ui.tab.crafting"), Style::default().fg(Color::Green)),
+        Span::raw(format!(" | {} | {}",t!("game.ui.tab.map"),t!("game.ui.tab.menu"))),
     ];
     let para_tabs = Paragraph::new(Spans::from(tabs))
-        .block(Block::default().title(t!("game.ui.tab",lang)).borders(Borders::ALL));
+        .block(Block::default().title(t!("game.ui.tab.name")).borders(Borders::ALL));
     frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
-        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life")).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(gauge_lifebar, hchunks0[1]);

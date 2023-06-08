@@ -6,7 +6,8 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Bow;
 
@@ -21,6 +22,7 @@ impl Item for Bow {
     }
 
     fn name<'a>(lang: String) -> &'a str {
+        rust_i18n::set_locale(&lang); //set language
         t!("game.items.bow",lang).as_str()
     }
 

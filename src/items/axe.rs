@@ -2,7 +2,8 @@ use tui::{text::Span, style::{Style, Color}};
 use crate::entities::{EntityKind, swing::Swing};
 
 use super::Item;
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Axe {
     quantity: i8,
@@ -25,8 +26,9 @@ impl Item for Axe {
         Span::styled("P", Style::default().fg(Color::White))
     }
 
-    fn name(lang: String) -> String {
-        t!("game.items.axe",lang)
+    fn name<'b>(lang: String) -> String {
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.items.axe")
     }
 
     fn damage(&self) -> u8 {

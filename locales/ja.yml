@@ -1,0 +1,102 @@
+game:
+  entity:
+    crawler: Crawler
+    fire: 火
+    golem: Golem
+    onyx_stone: 結石 Onyx
+    ovis: Ovis
+    player: 
+      name: プレーヤー
+      hand: 手
+    scorpy: スコーピオン
+    snake: 蛇
+    swing: バランス
+  err:
+    crafting:
+      ne: 不十分
+  items:
+    armor: 鎧
+    arrow: 矢印
+    axe: 矢印
+    boat: ボート
+    bow: 弓
+    pickaxe: つるはし
+    stick: 棒
+    sword: 剣
+  msg:
+    damage: ダメージ
+    took: 彼が取った
+    player:
+      collected: 集めました
+      dealt: 引き起こされた
+      to: ために
+      youcant: それをしてはいけない
+  ores:
+    coal: 石炭
+    iron: 鉄
+    gold: 金
+  res:
+    dragon_soul: ドラゴンソウル
+    grass: グラム
+    onyx_heart: 心臓 Onyx
+    stone: 結石
+    wood: 木
+  ui:
+    action: アクション
+    equiped: "[m] 装備されている:"
+    life: "[人生]"
+    ldchunks: "ロードされたチャンク:"
+    unchunks: "未使用のチャンク:"
+    using: "[k] 使用して:"
+    tab:
+      name: "[タブ]"
+      crafting: 創造
+      inventory: 在庫
+      map: 地図
+      menu: メニュー
+htp:
+  keys:
+    header: "キー:"
+    action: "空 = アクション"
+    arrows: "アローズ = 移動するには"
+    crafting: "C = 創造"
+    inventory: "I = 在庫"
+    map: "M = 地図"
+  ores:
+    header: "鉱石:"
+  res:
+    header: "資力:"
+    grasstuft: 草の房
+    rock: 石
+    sticks: スティック
+    stones: 石
+    tree: 木
+  sprites:
+    header: "Sprites グローバル:"
+    grass: グラム
+    deepwater: 深海
+    player: プレーヤー
+    stone: 結石
+    water: 水
+  title: 遊び方
+main:
+  opt:
+    htp: 遊び方
+    main_menu: メインメニュー
+    new_game: 新しいゲーム
+    settings: オプション
+    exit: 外出する
+    back: 戻る
+settings:
+  language:
+    full:
+      0: "English"
+      1: "Português"
+      2: "Русский"
+      3: "日本"
+    short: 
+      0: "en"
+      1: "pt-BR"
+      2: "ru-RU"
+      3: "ja-JP"
+    opt: 言語

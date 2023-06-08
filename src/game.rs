@@ -18,7 +18,8 @@ use crate::{entities::{
     EntityKind,
     player::Player, Direction, Action,
 }, blocks::BlockKind, chunk::{Chunk, CHUNK_SIZE, Terrain}, ui::{inventory, crafting, map, game_over}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 const TITLE: &str = "Yuni-Kod";
 
@@ -134,7 +135,7 @@ impl<'a> Game {
                 Action::Attack(id, damage) => {
                     let target = &mut self.entities[id];
                     target.hurt(damage);
-                    self.set_message(format!("{} {} {} {}", id,t!("game.msg.took", lang), damage,t!("game.msg.damage", lang)));
+                    self.set_message(format!("{} {} {} {}", id,t!("game.msg.took", locale=&lang), damage,t!("game.msg.damage", locale=&lang)));
                 },
                 Action::Nothing => {},
             };
@@ -378,13 +379,13 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &mut Game, player: &mut Play
 
     // controls information \\
     //let text = format!("x:{} y:{} p:{}", player.x(), player.y(), game.perlin.get_noise(player.x() as f64, player.y() as f64));
-    let text = format!("{} {} | {} {} | x:{} | y:{}",t!("game.ui.ldchunks",lang).as_str(), game.loaded_chunks.len(),t!("game.ui.unchunks",lang).as_str(),game.unused_chunks.len(), player.x(), player.y());
+    let text = format!("{} {} | {} {} | x:{} | y:{}",t!("game.ui.ldchunks",locale=&lang).as_str(), game.loaded_chunks.len(),t!("game.ui.unchunks",locale=&lang).as_str(),game.unused_chunks.len(), player.x(), player.y());
     let paragraph = Paragraph::new(text)
         .block(Block::default().title(TITLE).borders(Borders::ALL));
     frame.render_widget(paragraph, hchunks0[0]);
 
     let lifebar = Gauge::default()
-        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life",locale=&lang)).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(lifebar, hchunks0[1]);

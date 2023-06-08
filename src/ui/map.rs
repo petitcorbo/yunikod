@@ -12,7 +12,8 @@ use crate::{
     entities::player::Player,
     game::Game
 };
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player,lang: &mut String) -> io::Result<u8> {
     loop {
@@ -33,6 +34,8 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, lang: String) {
+    rust_i18n::set_locale(&lang); //set language
+  
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(3), Constraint::Length(3)])
         .split(frame.size());
@@ -43,16 +46,16 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
         .split(vchunks[0]);
 
     let tabs = vec![
-        Span::raw(format!("{} | {} | ",t!("game.ui.tab.inventory",lang), t!("game.ui.tab.crafting",lang))),
-        Span::styled(t!("game.ui.tab.map",lang), Style::default().fg(Color::Green)),
-        Span::raw(format!(" | {}",t!("game.ui.tab.menu",lang))),
+        Span::raw(format!("{} | {} | ",t!("game.ui.tab.inventory"), t!("game.ui.tab.crafting"))),
+        Span::styled(t!("game.ui.tab.map"), Style::default().fg(Color::Green)),
+        Span::raw(format!(" | {}",t!("game.ui.tab.menu"))),
     ];
     let para_tabs = Paragraph::new(Spans::from(tabs))
-        .block(Block::default().title(t!("game.ui.tab",lang)).borders(Borders::ALL));
+        .block(Block::default().title(t!("game.ui.tab.name")).borders(Borders::ALL));
     frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
-        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life")).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(gauge_lifebar, hchunks0[1]);
@@ -62,7 +65,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, game: &Game, player: &mut Player, 
     let canvas = Canvas::default()
         .x_bounds([-w, w])
         .y_bounds([-h, h])
-        .block(Block::default().title(t!("game.ui.tab.map",lang)).borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.tab.map")).borders(Borders::ALL))
         .paint(|ctx| {
             for chunk in game.loaded_chunks() {
                 ctx.print(chunk.0 as f64, chunk.1 as f64, chunk.average_terrain().span());

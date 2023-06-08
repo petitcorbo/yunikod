@@ -1,0 +1,102 @@
+game:
+  entity:
+    crawler: Crawler
+    fire: Fogo
+    golem: Golem
+    onyx_stone: Pedra Onyx
+    ovis: Ovis
+    player: 
+      name: Jogador
+      hand: Mão
+    scorpy: Escorpião
+    snake: Cobra
+    swing: Balanço
+  err:
+    crafting:
+      ne: Insuficiente
+  items:
+    armor: Armadura
+    arrow: Flecha
+    axe: Machado
+    boat: Barco
+    bow: Arco
+    pickaxe: Picareta
+    stick: Graveto
+    sword: Espada
+  msg:
+    damage: Dano
+    took: Levou
+    player:
+      collected: coletou
+      dealt: causou
+      to: para
+      youcant: você não pode fazer isso
+  ores:
+    coal: Carvão
+    iron: Ferro
+    gold: Ouro
+  res:
+    dragon_soul: Alma do Dragão
+    grass: Grama
+    onyx_heart: Coração Onyx
+    stone: Pedra
+    wood: Madeira
+  ui:
+    action: ação
+    equiped: "[m] equipado:"
+    life: "[Vida]"
+    ldchunks: "chunks carregadas:"
+    unchunks: "chunks inutilizadas:"
+    using: "[k] usando:"
+    tab:
+      name: "[Aba]"
+      crafting: criação
+      inventory: inventário
+      map: mapa
+      menu: menu
+htp:
+  keys:
+    header: "Teclas:"
+    action: "ESPAÇO = Ação"
+    arrows: "SETAS = Mover"
+    crafting: "C = Criação"
+    inventory: "I = Inventário"
+    map: "M = Mapa"
+  ores:
+    header: "Minérios:"
+  res:
+    header: "Recursos:"
+    grasstuft: Tufo de grama
+    rock: Rocha
+    sticks: Gravetos
+    stones: Pedras
+    tree: Árvore
+  sprites:
+    header: "Sprites Globais:"
+    grass: Grama
+    deepwater: Águas Profundas
+    player: Jogador
+    stone: Pedra
+    water: Água
+  title: COMO JOGAR
+main:
+  opt:
+    htp: Como Jogar
+    main_menu: Menu Principal
+    new_game: Novo Jogo
+    settings: Opções
+    exit: Sair
+    back: Voltar
+settings:
+  language:
+    full:
+      0: "English"
+      1: "Português"
+      2: "Русский"
+      3: "日本"
+    short: 
+      0: "en"
+      1: "pt-BR"
+      2: "ru-RU"
+      3: "ja-JP"
+    opt: Idioma

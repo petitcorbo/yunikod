@@ -11,7 +11,7 @@ pub mod pickaxe;
 pub mod axe;
 pub mod hand;
 
-use crate::{entities::{EntityKind, Direction}};
+use crate::entities::{EntityKind, Direction};
 use dragonsoul::DragonSoul;
 use onyxheart::OnyxHeart;
 use tui::text::Span;

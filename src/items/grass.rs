@@ -1,6 +1,7 @@
 use super::Item;
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Grass {
     quantity: i8,
@@ -24,7 +25,8 @@ impl Item for Grass {
     }
 
     fn name(lang: String) -> String {
-        t!("game.res.grass",lang)
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.res.grass")
     }
 
     fn damage(&self) -> u8 {

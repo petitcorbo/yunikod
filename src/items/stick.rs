@@ -1,7 +1,8 @@
 use super::Item;
 use crate::entities::{EntityKind, swing::Swing};
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Stick {
     quantity: i8,
@@ -26,7 +27,8 @@ impl Item for Stick {
     }
 
     fn name(lang: String) -> String {
-        t!("game.items.stick",lang)
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.items.stick")
     }
 
     fn damage(&self) -> u8 {

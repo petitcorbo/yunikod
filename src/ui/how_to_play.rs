@@ -8,7 +8,8 @@ use tui::{
     widgets::{Block, Borders, Paragraph, Table, Row, Cell},text::{Spans, Span, Text},
     Frame, Terminal,
 };
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 fn build_title<'a>() -> Text<'a> {
   let style = Style::default().fg(Color::Yellow);
@@ -50,6 +51,8 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, lang: &mut String) -> io::Res
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lang: String) {
+    rust_i18n::set_locale(&lang); // set language
+  
     let mut vchunks = Layout::default()
         .constraints([Constraint::Length(7), Constraint::Length(3), Constraint::Length(3), Constraint::Length(3), Constraint::Min(0)])
         .split(frame.size());
@@ -71,97 +74,97 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, list_idx: usize, color: Color, lan
   
     let par = Table::new(vec![
       Row::new(vec![
-          Cell::from(t!("htp.keys.arrows",lang)),
+          Cell::from(t!("htp.keys.arrows")),
           Cell::from(Spans::from(vec![
               Span::styled(" ",Style::default().bg(Color::Rgb(54, 181, 201))),
               Span::raw(" = "),
-              Span::raw(t!("htp.sprites.deepwater",lang))
+              Span::raw(t!("htp.sprites.deepwater"))
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⇞ = "),
-              Span::raw(t!("htp.res.tree",lang)),
+              Span::raw(t!("htp.res.tree")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⣳ = "),
-              Span::raw(t!("game.ores.coal",lang)),
+              Span::raw(t!("game.ores.coal")),
           ])),
       ]),
       Row::new(vec![
-          Cell::from(t!("htp.keys.inventory",lang)),
+          Cell::from(t!("htp.keys.inventory")),
           Cell::from(Spans::from(vec![
               Span::styled(" ",Style::default().bg(Color::Rgb(54, 201, 148))),
               Span::raw(" = "),
-              Span::raw(t!("htp.sprites.water",lang)),
+              Span::raw(t!("htp.sprites.water")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⠣ = "),
-              Span::raw(t!("htp.res.stones",lang)),
+              Span::raw(t!("htp.res.stones")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⡵ = "),
-              Span::raw(t!("game.ores.iron",lang)),
+              Span::raw(t!("game.ores.iron")),
           ])),
       ]),
       Row::new(vec![
-          Cell::from(t!("htp.keys.crafting",lang)),
+          Cell::from(t!("htp.keys.crafting")),
           Cell::from(Spans::from(vec![
               Span::styled(" ",Style::default().bg(Color::Rgb(70, 201, 54))),
               Span::raw(" = "),
-              Span::raw(t!("htp.sprites.grass",lang)),
+              Span::raw(t!("htp.sprites.grass")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("ɻ = "),
-              Span::raw(t!("htp.res.sticks",lang)),
+              Span::raw(t!("htp.res.sticks")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⡝ = "),
-              Span::raw(t!("game.ores.gold",lang)),
+              Span::raw(t!("game.ores.gold")),
           ])),
       ]),
       Row::new(vec![
-          Cell::from(t!("htp.keys.map",lang)),
+          Cell::from(t!("htp.keys.map")),
           Cell::from(Spans::from(vec![
               Span::styled(" ",Style::default().bg(Color::Rgb(84, 106, 78))),
               Span::raw(" = "),
-              Span::raw(t!("htp.sprites.stone",lang)),
+              Span::raw(t!("htp.sprites.stone")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("⣿ = "),
-              Span::raw(t!("htp.res.rock",lang)),
+              Span::raw(t!("htp.res.rock")),
           ])),
           Cell::from("")
       ]),
       Row::new(vec![
-          Cell::from(t!("htp.keys.action",lang)),
+          Cell::from(t!("htp.keys.action")),
           Cell::from(Spans::from(vec![
               Span::raw("▲"),
               Span::raw(" = "),
-              Span::raw(t!("htp.sprites.player",lang)),
+              Span::raw(t!("htp.sprites.player")),
           ])),
           Cell::from(Spans::from(vec![
               Span::raw("; = "),
-              Span::raw(t!("htp.res.grasstuft",lang)),
+              Span::raw(t!("htp.res.grasstuft")),
           ])),
           Cell::from("")
       ])
     ]).style(Style::default().fg(Color::White))
     .header(
-      Row::new(vec![t!("htp.keys.header",lang), 
-                          t!("htp.sprites.header",lang), 
-                          t!("htp.res.header",lang),
-                          t!("htp.ores.header",lang)]
+      Row::new(vec![t!("htp.keys.header"), 
+                          t!("htp.sprites.header"), 
+                          t!("htp.res.header"),
+                          t!("htp.ores.header")]
               )
       .style(Style::default().fg(Color::LightBlue))
       .bottom_margin(1)
     )
-    .block(Block::default().title(t!("htp.title",lang)).borders(Borders::ALL))
+    .block(Block::default().title(t!("htp.title")).borders(Borders::ALL))
     .widths(&[Constraint::Length(20), Constraint::Length(20), Constraint::Length(20),Constraint::Length(20)])
     .column_spacing(3);
     vchunks[0].y=7;
     vchunks[0].height=9;
     frame.render_widget(par,vchunks[0]);
     
-    let para_exit = Paragraph::new(Span::styled(t!("opt.back",lang), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
+    let para_exit = Paragraph::new(Span::styled(t!("main.opt.back"), Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)))
           .block(blocks[0].clone())
           .alignment(Alignment::Center);
     frame.render_widget(para_exit, Rect::new(frame.size().width/2-20, 16, 40, 3));

@@ -6,7 +6,8 @@ use crate::{
     }
 };
 use tui::{text::Span, style::{Style, Color}};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct OnyxHeart {
     quantity: i8
@@ -23,7 +24,8 @@ impl Item for OnyxHeart {
     }
 
     fn name(lang: String) -> String {
-        t!("game.res.onyx_heart",lang)
+        rust_i18n::set_locale(&lang); //set language
+        t!("game.res.onyx_heart")
     }
 
     fn damage(&self) -> u8 {

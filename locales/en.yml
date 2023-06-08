@@ -1,0 +1,102 @@
+game:
+  entity:
+    crawler: Crawler
+    fire: Fire
+    golem: Golem
+    onyx_stone: Onyx Stone
+    ovis: Ovis
+    player: 
+      name: Player
+      hand: Hand
+    scorpy: Scorpy
+    snake: Snake
+    swing: Swing
+  err:
+    crafting:
+      ne: Not Enough
+  items:
+    armor: Armor
+    arrow: Arrow
+    axe: Axe
+    boat: Boat
+    bow: Bow
+    pickaxe: Pickaxe
+    stick: Stick
+    sword: Sword
+  msg:
+    damage: Damage
+    took: Took
+    player:
+      collected: collected
+      dealt: dealt
+      to: to
+      youcant: you cant do that
+  ores:
+    coal: Coal
+    iron: Iron
+    gold: Gold
+  res:
+    dragon_soul: Dragon Soul
+    grass: Grass
+    onyx_heart: Onyx Heart
+    stone: Stone
+    wood: Wood
+  ui:
+    action: action
+    equiped: "[m] equiped:"
+    life: "[Life]"
+    ldchunks: "loaded chunks:"
+    unchunks: "unused chunks:"
+    using: "[k] using:"
+    tab:
+      name: "[Tab]"
+      crafting: crafting
+      inventory: inventory
+      map: map
+      menu: menu
+htp:
+  keys:
+    header: "Keys:"
+    action: "SPACE = Action"
+    arrows: "ARROWS = Move"
+    crafting: "C = Crafting"
+    inventory: "I = Inventory"
+    map: "M = Map"
+  ores:
+    header: "Ores:"
+  res:
+    header: "Resources:"
+    grasstuft: Grass Tuft
+    rock: Rock
+    sticks: Sticks
+    stones: Stones
+    tree: Tree
+  sprites:
+    header: "World Sprites:"
+    grass: Grass
+    deepwater: Deep Water
+    player: Player
+    stone: Stone
+    water: Water
+  title: HOW TO PLAY
+main:
+  opt:
+    htp: How to Play
+    main_menu: Main Menu
+    new_game: New Game
+    settings: Settings
+    exit: Exit
+    back: Back
+settings:
+  language:
+    full:
+      0: "English"
+      1: "Português"
+      2: "Русский"
+      3: "日本"
+    short: 
+      0: "en"
+      1: "pt-BR"
+      2: "ru-RU"
+      3: "ja-JP"
+    opt: Language

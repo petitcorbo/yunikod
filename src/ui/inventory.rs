@@ -12,7 +12,8 @@ use crate::{
     entities::player::Player,
     game::Game
 };
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: &mut Player, lang: &mut String) -> io::Result<u8> {
     let mut list_idx = 0;
@@ -40,6 +41,9 @@ pub fn run<B: Backend>(terminal: &mut Terminal<B>, game: &mut Game, mut player: 
 }
 
 fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player, list_idx: usize, lang: String) {
+    
+    rust_i18n::set_locale(&lang); //set language
+  
     let vchunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Length(3), Constraint::Min(3), Constraint::Length(3)])
         .split(frame.size());
@@ -55,25 +59,25 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player,
         .split(vchunks[1]);
 
     let tabs = vec![
-        Span::styled(t!("game.ui.tab.inventory",lang), Style::default().fg(Color::Green)),
-        Span::raw(format!(" | {} | {} | {}",t!("game.ui.tab.crafting",lang),t!("game.ui.tab.map",lang),t!("game.ui.tab.menu",lang))),
+        Span::styled(t!("game.ui.tab.inventory"), Style::default().fg(Color::Green)),
+        Span::raw(format!(" | {} | {} | {}",t!("game.ui.tab.crafting"),t!("game.ui.tab.map"),t!("game.ui.tab.menu"))),
     ];
     let para_tabs = Paragraph::new(Spans::from(tabs))
-        .block(Block::default().title(t!("game.ui.tab",lang)).borders(Borders::ALL));
+        .block(Block::default().title(t!("game.ui.tab.name")).borders(Borders::ALL));
     frame.render_widget(para_tabs, hchunks0[0]);
 
     let gauge_lifebar = Gauge::default()
-        .block(Block::default().title(t!("game.ui.life",lang)).borders(Borders::ALL))
+        .block(Block::default().title(t!("game.ui.life")).borders(Borders::ALL))
         .gauge_style(Style::default().fg(Color::Red))
         .ratio(player.life_ratio());
     frame.render_widget(gauge_lifebar, hchunks0[1]);
 
     let idx = player.using();
-    let para_using = Paragraph::new(format!("{} {}",t!("game.ui.using",lang), player.inventory().get(idx).name(lang.to_owned())))
+    let para_using = Paragraph::new(format!("{} {}",t!("game.ui.using"), player.inventory().get(idx).name(lang.to_owned())))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_using, hchunks1[0]);
 
-    let para_equiped = Paragraph::new(format!("{}",t!("game.ui.equiped",lang.to_owned())))
+    let para_equiped = Paragraph::new(format!("{}",t!("game.ui.equiped")))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_equiped, hchunks1[1]);
 
@@ -84,7 +88,7 @@ fn draw<'a, B: Backend>(frame: &mut Frame<B>, _game: &Game, player: &mut Player,
         .highlight_symbol(">");
     frame.render_stateful_widget(list, vchunks[2], &mut list_state);
 
-    let para_action = Paragraph::new("action")
+    let para_action = Paragraph::new(t!("game.ui.action"))
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(para_action, vchunks[3]);
 }

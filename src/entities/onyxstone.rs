@@ -5,7 +5,8 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::player::Player;
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct OnyxStone {
     x: i64,
@@ -29,7 +30,8 @@ impl<'a> OnyxStone {
 
 impl<'a> Entity<'a> for OnyxStone {
     fn name(&self,lang: String) -> String {
-       t!("game.entity.onyx_stone", lang).to_string()
+       rust_i18n::set_locale(&lang); //set language
+       t!("game.entity.onyx_stone")
     } 
 
     fn shape(&self) -> Span<'a> {

@@ -6,7 +6,8 @@ use tui::{
 use crate::{entities::{Direction, Entity}, game::Game};
 
 use super::{player::Player, Action};
-use locales::t;
+use rust_i18n::t;
+rust_i18n::i18n!("locales");
 
 pub struct Snake {
     x: i64,
@@ -38,7 +39,8 @@ impl<'a> Snake {
 
 impl<'a> Entity<'a> for Snake {
     fn name(&self,lang: String) -> String {
-       t!("game.entity.snake", lang).to_string()
+       rust_i18n::set_locale(&lang); //set language
+       t!("game.entity.snake")
     } 
 
     fn shape(&self) -> Span<'a> {
